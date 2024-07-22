@@ -19,6 +19,9 @@ Welcome to Imperative! Imperative is a server that implements a Simple Text Adve
 **User Story:**  
 As a **player**, I want to be able to play an engaging text adventure game that responds quickly and smoothly. I expect the server to handle my inputs appropriately and not crash even if I make mistakes or issue incorrect commands.
 
+## Architecture Diagram ## 
+![Architecture Diagram](architecture.diagram)
+
 ## Building the project
 
 You can compile all of the source code in the project (which is located in `src/main/java`) using the following command:

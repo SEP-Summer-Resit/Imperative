@@ -22,6 +22,12 @@ As a **player**, I want to be able to play an engaging text adventure game that 
 ## Architecture Diagram ## 
 ![Architecture Diagram](architecture.diagram)
 
+* First the code is written on the developer machines
+* It is then tested using the integration testing clients
+* Then the code is pushed to github from the developer machines
+* The lab deployment machines pull the code from the github repo and the game server software is then run on those machines
+* The end user clients then interact with the server software to play the game 
+
 ## Building the project
 
 You can compile all of the source code in the project (which is located in `src/main/java`) using the following command:

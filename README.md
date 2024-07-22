@@ -10,10 +10,14 @@ Group Team Channel: [Imperative](https://teams.microsoft.com/l/channel/19%3A56e1
 Welcome to Imperative! Imperative is a server that implements a Simple Text Adventure Game. It accepts clients connections and allows them to interact with the STAG via the command line. It aims to produce a fun game that is robust and reliable. 
 
 ## Stakeholders
-End Users / Players
-Role: Use the server to play the text adventure game
-Expectations: server is reliable/doesn't crash, game is enjoyable and responsive
-User-Story: As a player, I want to be able to play an engaging game that is quick and smooth to respond. I want the server to respond appriately to my inputs and not crash if I make a mistake.
+### End Users / Players ###
+**Role:** Use the server to play the text adventure game.  
+**Expectations:**  
+- The server is reliable and does not crash.
+- The game is enjoyable, engaging, and responsive to player actions.  
+
+**User Story:**  
+As a **player**, I want to be able to play an engaging text adventure game that responds quickly and smoothly. I expect the server to handle my inputs appropriately and not crash even if I make mistakes or issue incorrect commands.
 
 ## Building the project
 

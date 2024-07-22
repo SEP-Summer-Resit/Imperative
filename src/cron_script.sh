@@ -3,6 +3,7 @@
 # Define variables
 PROJECT_BASE="${HOME}/Imperative"
 PROJECT_DIR="${PROJECT_BASE}/src"
+SERVER_START_CMD="./mvnw exec:java@server" # Command to start your server
 SERVER_LOG="${PROJECT_BASE}/server.log"
 
 
@@ -31,10 +32,14 @@ git pull origin master
 # Build the project using Maven
 ./mvnw clean compile
 
-# Start the updated server
-./mvnw exec:java@server
+#Start the updated server and log output to server.log, the server will be started but backgrounded and running in a separate thread
+nohup $SERVER_START_CMD > "$SERVER_LOG" 2>&1 &
 
 # Return to the previous directory
 popd || exit
 
-#crontab is 0 * * * * /bin/sh ${HOME}/Imperative/src/cron_script.sh for hourly updates
+#CRONTAB INSTRUCTIONS
+# on the lab machine, in a terminal use crontab -e
+# this will open in vim where you need to enter this line
+# 0 * * * * /bin/sh ${HOME}/Imperative/src/cron_script.sh
+# this will update every hour calling the cron script above

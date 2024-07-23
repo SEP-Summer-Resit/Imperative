@@ -9,8 +9,15 @@ public class Character {
         this.description = description;
     }
 
+    public Character() {
+    }
+
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {

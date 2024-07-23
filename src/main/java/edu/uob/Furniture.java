@@ -9,8 +9,16 @@ public class Furniture {
         this.description = description;
     }
 
+    public Furniture() {
+    }
+
     public String getName() {
         return name;
+    }
+    
+    
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {

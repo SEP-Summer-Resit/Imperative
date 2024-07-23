@@ -1,20 +1,20 @@
 package edu.uob;
 
 public class Path {
-    private Location startLocation;
-    private Location destination;
+    private String startLocation;
+    private String destination;
     
 
-    public Path(Location destination, Location startLocation) {
+    public Path(String destination, String startLocation) {
         this.destination = destination;
         this.startLocation = startLocation;
     }
 
-    public Location getStartLocation() {
+    public String getStartLocation() {
         return startLocation;
     }
 
-    public Location getDestination() {
+    public String getDestination() {
         return destination;
     }
 

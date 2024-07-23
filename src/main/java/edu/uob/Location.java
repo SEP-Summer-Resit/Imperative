@@ -12,6 +12,15 @@ public class Location {
     private List<Artefact> artefacts;
     private List<Path> pathsOut;
 
+    public Location() {
+        this.name = "";
+        this.description = "";
+        this.artefacts = new ArrayList<Artefact>();
+        this.pathsOut = new ArrayList<Path>();
+        this.characters = new ArrayList<Character>();
+        this.furniture = new ArrayList<Furniture>();
+    }
+
     public Location(String name, String description) {
         this.name = name;
         this.description = description;
@@ -25,8 +34,16 @@ public class Location {
         return name;
     }
 
+    public String setName(String name) {
+        return this.name = name;
+    }
+
     public String getDescription() {
         return description;
+    }
+
+    public String setDescription(String description) {
+        return this.description = description;
     }
 
     public List<Artefact> getArtefacts() {

@@ -9,9 +9,17 @@ public class Artefact {
         this.description = description;
     }
 
+    public Artefact() {
+    }
+
     public String getName() {
         return name;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
 
     public String getDescription() {
         return description;

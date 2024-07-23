@@ -3,6 +3,7 @@ package edu.uob;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,8 +15,14 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import com.alexmerz.graphviz.*;
-import com.alexmerz.graphviz.objects.*;
+
+import com.alexmerz.graphviz.ParseException;
+import com.alexmerz.graphviz.Parser;
+import com.alexmerz.graphviz.objects.Edge;
+import com.alexmerz.graphviz.objects.Graph;
+import com.alexmerz.graphviz.objects.Node;
+
+import edu.uob.Character;
 
 
 
@@ -47,59 +54,70 @@ public final class GameServer {
         return response;
     }
 
-    public ArrayList<Location> readEntityFile(String entityFileName) {
+    public ArrayList<Location> readEntityFile(String entityFileName) throws ParseException {
+        ArrayList<Location> locationsList = new ArrayList<>();
         Parser parser = new Parser();
         String file = "config" + File.separator + entityFileName;
-        FileReader reader = new FileReader(file);
-        parser.parse(reader);
+        try (FileReader reader = new FileReader("config\\entities.dot")) {
+            parser.parse(reader);
+        } catch (FileNotFoundException e) {
+            System.err.println("File not found: " + e.getMessage());
+            return locationsList; // return empty list or handle the error
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+            return locationsList; // return empty list or handle the error
+        }
+    
+        if (parser.getGraphs().isEmpty()) {
+            throw new ParseException("No graphs found in the file.");
+        }
+        
         Graph wholeDocument = parser.getGraphs().get(0);
         ArrayList<Graph> parts = wholeDocument.getSubgraphs();
         ArrayList<Graph> locations = parts.get(0).getSubgraphs();
         ArrayList<Edge> paths = parts.get(1).getEdges();
-        
-        ArrayList<Location> locationsList;
        
         for (Graph location : locations) {
-            Location currLoc;
             Node locationDetails = location.getNodes(false).get(0);
             String locationName = locationDetails.getId().getId();
-            currLoc.addName = locationName;
+            Location currLoc = new Location();
+            currLoc.setName(locationName);
             ArrayList<Graph> entities = location.getSubgraphs();
             for (Graph entity : entities) {
                 Node entityDetails = entity.getNodes(false).get(0);
                 String entityName = entityDetails.getId().getId();
                 if ("diamond".equals(entityDetails.getAttribute("shape"))){
-                   Artefact artefact;
-                   artefact.setName(entityName)
+                   Artefact artefact = new Artefact();
+                   artefact.setName(entityName);
                    currLoc.addArtefact(artefact);
                 }
                 if ("hexagon".equals(entityDetails.getAttribute("shape"))){
-                    Furniture furniture;
-                    furniture.setName(entityName)
+                    Furniture furniture = new Furniture();
+                    furniture.setName(entityName);
                     currLoc.addFurniture(furniture);
                 }
                 if ("ellipse".equals(entityDetails.getAttribute("shape"))){
-                    Character character;
-                    character.setName(entityName)
+                    Character character = new Character();
+                    character.setName(entityName);
                     currLoc.addCharacter(character);
                 }
             }
             locationsList.add(currLoc);
         }
     
-        for (Edge path : paths) {
-            Node fromLocation = path.getSource().getNode();
+        for (Edge edge : paths) {
+            Node fromLocation = edge.getSource().getNode();
             String fromName = fromLocation.getId().getId();
-            Node toLocation = path.getTarget().getNode();
+            Node toLocation = edge.getTarget().getNode();
             String toName = toLocation.getId().getId();
-
+            Path path = new Path(toName, fromName);
             for (Location location : locationsList){
-                Path path = (toName, fromName);
-                if (location.getName() == fromName){
+                if (location.getName().equals(fromName)){
                     location.addPath(path);
                 }
             }
         }
+        
         return locationsList;
     }
 

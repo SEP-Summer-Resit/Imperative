@@ -1,8 +1,12 @@
 package edu.uob;
-
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import com.alexmerz.graphviz.ParseException;
+
 
 final class readEntityFileTests {
 
@@ -15,11 +19,17 @@ final class readEntityFileTests {
   }
 
   @Test
-  void testLookCommand() {
-    String response = server.handleCommand("Daniel: look");
-    assertTrue(response.contains("The location you are currently in is"), "No location returned by `look`");
-    assertTrue(response.contains("There are the following artefacts in this location"), "No artefacts returned by `look`");
-    assertTrue(response.contains("There are paths to the following locations"), "No paths returned by `look`");
+  void testCorrectLocations() throws ParseException {
+    ArrayList<Location> locations = server.readEntityFile("etities.dot");
+    String[] expectedLocations = {"cabin", "riverbank", "forest", "clearing", "cellar", "storeroom"};
+    Set<String> locationNames = new HashSet<>();
+    for (Location location : locations) {
+      locationNames.add(location.getName());
+    }
+    for (String expectedLocation : expectedLocations) {
+      assertTrue(locationNames.contains(expectedLocation), "Location '" + expectedLocation + "' should be present.");
+    }
+    }
   }
 
-}
+

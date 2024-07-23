@@ -2,7 +2,6 @@
 
 # Define variables
 PROJECT_BASE="${HOME}/Imperative"
-PROJECT_DIR="${PROJECT_BASE}/src"
 SERVER_START_CMD="./mvnw exec:java@server" # Command to start your server
 SERVER_LOG="${PROJECT_BASE}/server.log"
 
@@ -20,7 +19,7 @@ kill_server() {
 }
 
 # Change to the project directory
-pushd "$PROJECT_DIR" || exit
+pushd "$PROJECT_BASE" || exit
 
 # Kill the currently running server
 kill_server

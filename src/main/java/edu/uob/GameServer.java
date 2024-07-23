@@ -27,11 +27,23 @@ public final class GameServer {
         String username = incomming.split(":")[0].trim();
         String command = incomming.split(":")[1].trim();
         String response = "";
+        String filteredCommand = filterCommand(command);
+        if (filteredCommand.startsWith("look")) {
+            response += "The location you are currently in is ???\n";
+            response += "There are the following artefacts in this location ???\n";
+            response += "There are paths to the following locations ???";
+        }
+        if (filteredCommand.startsWith("inv")) {
+            response += "You have the following items in your inventory ???";
+        }
+        return response;
+    }
 
+    public String filterCommand(String command){
         //remove capital letters and punctuation
-        String cleanCommand = command.toLowerCase().replaceAll("[^a-zA-Z0-9]", "");
+        String cleanCommand = command.toLowerCase().replaceAll("[^a-zA-Z0-9 ]", "");
         //tokenise the command (split into seperate words)
-        String[] tokens = cleanCommand.split(" ");
+        String[] tokens = cleanCommand.split("\\s+");
         
         Set<String> stopwords = new HashSet<>(Arrays.asList("i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours", "yourself", "yourselves", "he", 
         "him", "his", "himself", "she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their", "theirs", "themselves", "what", "which", "who", "whom", "this", "that",
@@ -50,16 +62,7 @@ public final class GameServer {
 
         //make a single string from filtered tokens
         String filteredCommand = String.join(" ", filteredTokens);
-        
-        if (filteredCommand.startsWith("look")) {
-            response += "The location you are currently in is ???\n";
-            response += "There are the following artefacts in this location ???\n";
-            response += "There are paths to the following locations ???";
-        }
-        if (filteredCommand.startsWith("inv")) {
-            response += "You have the following items in your inventory ???";
-        }
-        return response;
+        return filteredCommand;
     }
 
     // Networking method - you shouldn't need to chenge this method !

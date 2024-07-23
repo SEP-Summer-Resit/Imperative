@@ -26,8 +26,6 @@ import edu.uob.Character;
 
 
 
-
-
 public final class GameServer {
 
     public static void main(String[] args) throws IOException {
@@ -78,28 +76,39 @@ public final class GameServer {
         ArrayList<Edge> paths = parts.get(1).getEdges();
        
         for (Graph location : locations) {
+            //get all locations
             Node locationDetails = location.getNodes(false).get(0);
             String locationName = locationDetails.getId().getId();
-            Location currLoc = new Location();
-            currLoc.setName(locationName);
+            String locationDescription = locationDetails.getAttribute("description");
+            Location currLoc = new Location(locationName, locationDescription);
+            
+            //get a list of subgraphs/entities 
             ArrayList<Graph> entities = location.getSubgraphs();
+            //go through each entity type like artefact, furniture etc
             for (Graph entity : entities) {
-                Node entityDetails = entity.getNodes(false).get(0);
-                String entityName = entityDetails.getId().getId();
-                if ("diamond".equals(entityDetails.getAttribute("shape"))){
-                   Artefact artefact = new Artefact();
-                   artefact.setName(entityName);
-                   currLoc.addArtefact(artefact);
-                }
-                if ("hexagon".equals(entityDetails.getAttribute("shape"))){
-                    Furniture furniture = new Furniture();
-                    furniture.setName(entityName);
-                    currLoc.addFurniture(furniture);
-                }
-                if ("ellipse".equals(entityDetails.getAttribute("shape"))){
-                    Character character = new Character();
-                    character.setName(entityName);
-                    currLoc.addCharacter(character);
+                ArrayList<Node> entityNodes = entity.getNodes(false);
+                String entityType = entity.getId().getId();
+                //go through each node within each entity type
+                for (Node node : entityNodes) {
+
+                    //get the name and description of the node
+                    String entityName = node.getId().getId();
+                    String entityDescription = node.getAttribute("description");
+                    System.out.println(entityName);
+                    //check the shape to decide what it is and add to location
+                    if (entityType.equals("artefacts")){
+                    System.out.println(entityName);
+                    Artefact artefact = new Artefact(entityName, entityDescription);
+                    currLoc.addArtefact(artefact);
+                    }
+                    if (entityType.equals("furniture")){
+                        Furniture furniture = new Furniture(entityName, entityDescription);
+                        currLoc.addFurniture(furniture);
+                    }
+                    if (entityType.equals("character")){
+                        Character character = new Character(entityName, entityDescription);
+                        currLoc.addCharacter(character);
+                    }
                 }
             }
             locationsList.add(currLoc);

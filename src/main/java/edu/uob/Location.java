@@ -34,16 +34,8 @@ public class Location {
         return name;
     }
 
-    public String setName(String name) {
-        return this.name = name;
-    }
-
     public String getDescription() {
         return description;
-    }
-
-    public String setDescription(String description) {
-        return this.description = description;
     }
 
     public List<Artefact> getArtefacts() {

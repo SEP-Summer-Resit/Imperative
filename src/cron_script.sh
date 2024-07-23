@@ -2,7 +2,6 @@
 
 # Define variables
 PROJECT_BASE="${HOME}/Imperative"
-PROJECT_DIR="${PROJECT_BASE}/src"
 SERVER_START_CMD="./mvnw exec:java@server" # Command to start your server
 SERVER_LOG="${PROJECT_BASE}/server.log"
 
@@ -20,7 +19,7 @@ kill_server() {
 }
 
 # Change to the project directory
-pushd "$PROJECT_DIR" || exit
+pushd "$PROJECT_BASE" || exit
 
 # Kill the currently running server
 kill_server
@@ -32,8 +31,8 @@ git pull origin master
 # Build the project using Maven
 ./mvnw clean compile
 
-#Start the updated server and log output to server.log, the server will be started but backgrounded and running in a separate thread
-nohup $SERVER_START_CMD > "$SERVER_LOG" 2>&1 &
+#Start the updated server and log output to server.log
+$SERVER_START_CMD > "$SERVER_LOG" 2>&1 &
 
 # Return to the previous directory
 popd || exit

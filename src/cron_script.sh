@@ -32,8 +32,8 @@ git pull origin master
 # Build the project using Maven
 ./mvnw clean compile
 
-#Start the updated server and log output to server.log, the server will be started but backgrounded and running in a separate thread
-nohup $SERVER_START_CMD > "$SERVER_LOG" 2>&1 &
+#Start the updated server and log output to server.log
+$SERVER_START_CMD > "$SERVER_LOG" 2>&1 &
 
 # Return to the previous directory
 popd || exit

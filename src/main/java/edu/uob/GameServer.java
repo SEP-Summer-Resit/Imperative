@@ -2,6 +2,8 @@ package edu.uob;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -12,6 +14,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import com.alexmerz.graphviz.*;
+import com.alexmerz.graphviz.objects.*;
+
+
+
+
 
 public final class GameServer {
 
@@ -38,6 +46,63 @@ public final class GameServer {
         }
         return response;
     }
+
+    public ArrayList<Location> readEntityFile(String entityFileName) {
+        Parser parser = new Parser();
+        String file = "config" + File.separator + entityFileName;
+        FileReader reader = new FileReader(file);
+        parser.parse(reader);
+        Graph wholeDocument = parser.getGraphs().get(0);
+        ArrayList<Graph> parts = wholeDocument.getSubgraphs();
+        ArrayList<Graph> locations = parts.get(0).getSubgraphs();
+        ArrayList<Edge> paths = parts.get(1).getEdges();
+        
+        ArrayList<Location> locationsList;
+       
+        for (Graph location : locations) {
+            Location currLoc;
+            Node locationDetails = location.getNodes(false).get(0);
+            String locationName = locationDetails.getId().getId();
+            currLoc.addName = locationName;
+            ArrayList<Graph> entities = location.getSubgraphs();
+            for (Graph entity : entities) {
+                Node entityDetails = entity.getNodes(false).get(0);
+                String entityName = entityDetails.getId().getId();
+                if ("diamond".equals(entityDetails.getAttribute("shape"))){
+                   Artefact artefact;
+                   artefact.setName(entityName)
+                   currLoc.addArtefact(artefact);
+                }
+                if ("hexagon".equals(entityDetails.getAttribute("shape"))){
+                    Furniture furniture;
+                    furniture.setName(entityName)
+                    currLoc.addFurniture(furniture);
+                }
+                if ("ellipse".equals(entityDetails.getAttribute("shape"))){
+                    Character character;
+                    character.setName(entityName)
+                    currLoc.addCharacter(character);
+                }
+            }
+            locationsList.add(currLoc);
+        }
+    
+        for (Edge path : paths) {
+            Node fromLocation = path.getSource().getNode();
+            String fromName = fromLocation.getId().getId();
+            Node toLocation = path.getTarget().getNode();
+            String toName = toLocation.getId().getId();
+
+            for (Location location : locationsList){
+                Path path = (toName, fromName);
+                if (location.getName() == fromName){
+                    location.addPath(path);
+                }
+            }
+        }
+        return locationsList;
+    }
+
 
     public String filterCommand(String command){
         //remove capital letters and punctuation

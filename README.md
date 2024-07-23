@@ -20,7 +20,16 @@ Welcome to Imperative! Imperative is a server that implements a Simple Text Adve
 As a **player**, I want to be able to play an engaging text adventure game that responds quickly and smoothly. I expect the server to handle my inputs appropriately and not crash even if I make mistakes or issue incorrect commands.
 
 ## Architecture Diagram ## 
-![Architecture Diagram](architecture.diagram)
+![Architecture Diagram](docs/architecture-diagram.png)
+
+## Class Diagram ## 
+![Class Diagram](docs/class-diagram.png)
+
+* First the code is written on the developer machines
+* It is then tested using the integration testing clients
+* Then the code is pushed to github from the developer machines
+* The lab deployment machines pull the code from the github repo and the game server software is then run on those machines
+* The end user clients then interact with the server software to play the game 
 
 ## Building the project
 

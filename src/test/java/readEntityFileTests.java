@@ -46,7 +46,7 @@ final class readEntityFileTests {
       }
     }
     for (String expectedArtefact : expectedArtefacts) {
-      assertTrue(actualArtefacts.contains(expectedArtefact), "artefact '" + expectedArtefact + "' should be present.");
+      assertTrue(actualArtefacts.contains(expectedArtefact), "Artefact '" + expectedArtefact + "' should be present.");
     }
   }
 
@@ -61,7 +61,7 @@ final class readEntityFileTests {
       }
     }
     for (String expectedFurniture : expectedFurnitures) {
-      assertTrue(actualFurniture.contains(expectedFurniture), "furniture '" + expectedFurniture + "' should be present.");
+      assertTrue(actualFurniture.contains(expectedFurniture), "Furniture '" + expectedFurniture + "' should be present.");
     }
   }
 
@@ -76,7 +76,7 @@ final class readEntityFileTests {
       }
     }
     for (String expectedCharacter : expectedCharacters) {
-      assertTrue(actualCharacters.contains(expectedCharacter), "character '" + expectedCharacter + "' should be present.");
+      assertTrue(actualCharacters.contains(expectedCharacter), "Character '" + expectedCharacter + "' should be present.");
     }
   }
 
@@ -97,8 +97,8 @@ final class readEntityFileTests {
         }
       }
     }
-    assertTrue(actualDescriptionCabin.equals(expectedDescriptionCabin), "character '" + expectedDescriptionCabin + "' should be present.");
-    assertTrue(actualDescriptionPotion.equals(expectedDescriptionPotion), "character '" + expectedDescriptionPotion + "' should be present.");
+    assertTrue(actualDescriptionCabin.equals(expectedDescriptionCabin), "Description '" + expectedDescriptionCabin + "' should be present.");
+    assertTrue(actualDescriptionPotion.equals(expectedDescriptionPotion), "Description '" + expectedDescriptionPotion + "' should be present.");
     
     
   }
@@ -127,13 +127,13 @@ final class readEntityFileTests {
       }
     }
     for (String expectedPathForest : expectedPathsForest) {
-      assertTrue(actualPathsOutForest.contains(expectedPathForest), "character '" + expectedPathForest + "' should be present.");
+      assertTrue(actualPathsOutForest.contains(expectedPathForest), "Path to '" + expectedPathForest + "' should be present.");
     }
     for (String expectedPathClearing : expectedPathsClearing) {
-      assertTrue(actualPathsOutForest.contains(expectedPathClearing), "character '" + expectedPathClearing + "' should be present.");
+      assertTrue(actualPathsOutForest.contains(expectedPathClearing), "Path to '" + expectedPathClearing + "' should be present.");
     }
     for (String expectedPathCabin : expectedPathsCabin) {
-      assertTrue(actualPathsOutCabin.contains(expectedPathCabin), "character '" + expectedPathCabin + "' should be present.");
+      assertTrue(actualPathsOutCabin.contains(expectedPathCabin), "Path to '" + expectedPathCabin + "' should be present.");
     }
   }
 

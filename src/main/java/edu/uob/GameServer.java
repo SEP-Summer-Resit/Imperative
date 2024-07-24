@@ -40,6 +40,9 @@ public final class GameServer {
     public GameServer() {
     }
 
+    // Returns an integer identifying where in the players list the current player exists.
+    // Creates a new player and adds to the players list if the username hasn't been previously used.
+    // Creates the corresponding map in the maps list for the given player if it doesn't already exist.
     public int findPlayer(String username) throws ParseException {
         int i;
         Player player;
@@ -204,6 +207,8 @@ public final class GameServer {
         return response;
     }
 
+    // Move artefact from inventory to the current location if artefact exists in inventory.
+    // Return a response to the 'drop' command being sent.
     public String dropCommand(Player player, ArrayList<Location> map, String command) {
         String response = "";
         boolean artefactDropped = false;

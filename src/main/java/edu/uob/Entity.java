@@ -1,6 +1,6 @@
 package edu.uob;
 
-public class Entity {
+abstract class Entity {
     protected String name;
     protected String description;
 

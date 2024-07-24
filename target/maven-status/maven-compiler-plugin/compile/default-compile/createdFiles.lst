@@ -1,0 +1,9 @@
+edu\uob\Location.class
+edu\uob\Player.class
+edu\uob\Character.class
+edu\uob\Furniture.class
+edu\uob\GameServer.class
+edu\uob\GameClient.class
+edu\uob\Artefact.class
+edu\uob\Path.class
+edu\uob\Entity.class

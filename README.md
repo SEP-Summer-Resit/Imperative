@@ -22,14 +22,15 @@ As a **player**, I want to be able to play an engaging text adventure game that 
 ## Architecture Diagram ## 
 ![Architecture Diagram](docs/architecture-diagram.png)
 
-## Class Diagram ## 
-![Class Diagram](docs/class-diagram.png)
-
 * First the code is written on the developer machines
 * It is then tested using the integration testing clients
 * Then the code is pushed to github from the developer machines
 * The lab deployment machines pull the code from the github repo and the game server software is then run on those machines
-* The end user clients then interact with the server software to play the game 
+* The end user clients then interact with the server software to play the game
+  
+## Class Diagram ## 
+![Class Diagram](docs/class-diagram.png)
+
 
 ## Building the project
 

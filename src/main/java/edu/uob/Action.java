@@ -16,5 +16,21 @@ public class Action {
         this.produced = produced;
         this.narration = narration;
     }
-    
+
+    public void addTrigger(String trigger) {
+        triggers.add(trigger);
+    }
+
+    public void addSubject(Entity subject) {
+        subjects.add(subject);
+    }
+
+    public void addConsumed(Entity consumedEntity) {
+        consumed.add(consumedEntity);
+    }
+
+    public void addProduced(Entity producedEntity) {
+        produced.add(producedEntity);
+    }
+
 }

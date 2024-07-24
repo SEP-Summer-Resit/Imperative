@@ -237,6 +237,32 @@ public final class GameServer {
         return response;
     }
 
+    // Reset game state for the given player.
+    // Return a response to the 'reset' command.
+    public String resetCommand(Player player, ArrayList<Location> map, String command, int p) throws ParseException {
+        String response = "";
+        ArrayList<Location> locations;
+        String username = player.getName();
+
+        // Check that the command is precisely 'reset'
+        if(!command.trim().matches("reset")) {
+            response += "To reset the game please simply type 'reset'\n";
+            return response;
+        }
+
+        System.out.println("Resetting player: " + username);
+
+        // Reset the current player
+        players.set(p, new Player(username, new ArrayList<>()));
+
+        // Reset the current player's map
+        locations = readEntityFile("entities.dot");
+        maps.set(p, locations);
+
+        response += "Game reset.\n";
+        return response;
+    }
+
     // Handle an incoming command from a player
     public String handleCommand(String incomming) throws ParseException {
         int p;
@@ -268,6 +294,9 @@ public final class GameServer {
         }
         else if (filteredCommand.startsWith("drop")) {
             response += dropCommand(player, map, filteredCommand);
+        }
+        else if (filteredCommand.startsWith("reset")) {
+            response += resetCommand(player, map, filteredCommand, p);
         }
 
         return response;

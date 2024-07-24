@@ -140,7 +140,7 @@ public final class GameServer {
                 if (filteredCommand.startsWith(trigger)){
                     for (String subject : action.getSubjects()){
                         System.out.println(subject);
-                        if (player.getInventory().contains(subject)){
+                        if (player.getInventory().contains(new Artefact(subject, ""))){
                             System.out.println("yippee");
                         }
                         else if (currentLocation.hasArtefact(subject)){

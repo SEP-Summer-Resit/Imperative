@@ -21,7 +21,7 @@ public class Location extends Entity {
     }
 
     public Boolean hasArtefact(String artefactName){
-        return artefacts.contains(artefactName);
+        return artefacts.contains(new Artefact(artefactName, ""));
     }
 
     public List<Artefact> getArtefacts() {

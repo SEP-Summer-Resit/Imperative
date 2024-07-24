@@ -1,2 +1,5 @@
 !*.jar
 .DS_Store
+*.class
+target/
+server.log

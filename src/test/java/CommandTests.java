@@ -1,12 +1,9 @@
 package edu.uob;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.io.File;
-import java.nio.file.Paths;
-import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 final class CommandTests {
 
@@ -31,5 +28,20 @@ final class CommandTests {
     String response = server.handleCommand("Daniel: inv");
     assertTrue(response.contains("You have the following items in your inventory"), "Inventory not listed");
   }
+
+  @Test
+  void testCommandTokenisation() {
+    String filteredCommand = server.filterCommand("This is a command! There is some random punctuation :)");
+    String expectedOutput = "command random punctuation";
+    assertEquals(expectedOutput, filteredCommand, "Incorrect Filtering");
+    }
+
+    @Test
+    void testCommandTokenisationTooManySpaces() {
+      String filteredCommand = server.filterCommand("This    command has  too many     spaces");
+      String expectedOutput = "command many spaces";
+      assertEquals(expectedOutput, filteredCommand, "Incorrect Filtering");
+      }
+ 
 
 }

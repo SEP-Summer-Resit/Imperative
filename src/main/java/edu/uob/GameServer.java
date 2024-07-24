@@ -81,6 +81,17 @@ public final class GameServer {
                 // Uncapitalize the first letter of description which comes in the middle of the sentence.
                 java.lang.Character.toLowerCase(currentLocation.getDescription().charAt(0)) +
                 currentLocation.getDescription().substring(1) + "\n";
+        // Characters
+        if(!currentLocation.getCharacters().isEmpty()) {
+            response += "The following characters are here:\n";
+            for (int i = 0; i < currentLocation.getCharacters().size(); i++) {
+                response += "* " + currentLocation.getCharacters().get(i).getName() + "\n";
+            }
+        }
+        else {
+            response += "There are no characters here.\n";
+        }
+        // Artefacts
         if(!currentLocation.getArtefacts().isEmpty()) {
             response += "There are the following artefacts in this location: \n";
             for (int i = 0; i < currentLocation.getArtefacts().size(); i++) {
@@ -90,12 +101,14 @@ public final class GameServer {
         else {
             response += "There are no artefacts in this location\n";
         }
+        // Furniture
         if(!currentLocation.getFurniture().isEmpty()) {
             response += "In the " + currentLocation.getName() + " there are:\n";
             for (int i = 0; i < currentLocation.getFurniture().size(); i++) {
                 response += "* " + currentLocation.getFurniture().get(i).getName() + "\n";
             }
         }
+        // Paths Out
         if(!currentLocation.getPathsOut().isEmpty()) {
             response += "There are paths to the following locations: \n";
             for (int i = 0; i < currentLocation.getPathsOut().size(); i++) {
@@ -105,6 +118,7 @@ public final class GameServer {
         else {
             response += "There are no paths from here\n";
         }
+
         return response;
     }
 

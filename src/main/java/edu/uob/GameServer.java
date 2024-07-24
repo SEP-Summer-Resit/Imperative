@@ -18,8 +18,8 @@ import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
-import org.w3c.dom.NodeList;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -29,7 +29,6 @@ import com.alexmerz.graphviz.ParseException;
 import com.alexmerz.graphviz.Parser;
 import com.alexmerz.graphviz.objects.Edge;
 import com.alexmerz.graphviz.objects.Graph;
-import com.alexmerz.graphviz.objects.Node;
 
 import edu.uob.Character;
 
@@ -86,7 +85,7 @@ public final class GameServer {
        
         for (Graph location : locations) {
             //get all locations
-            Node locationDetails = location.getNodes(false).get(0);
+            com.alexmerz.graphviz.objects.Node locationDetails = location.getNodes(false).get(0);
             String locationName = locationDetails.getId().getId();
             String locationDescription = locationDetails.getAttribute("description");
             Location currLoc = new Location(locationName, locationDescription);
@@ -95,10 +94,10 @@ public final class GameServer {
             ArrayList<Graph> entities = location.getSubgraphs();
             //go through each entity type like artefact, furniture etc
             for (Graph entity : entities) {
-                ArrayList<Node> entityNodes = entity.getNodes(false);
+                ArrayList<com.alexmerz.graphviz.objects.Node> entityNodes = entity.getNodes(false);
                 String entityType = entity.getId().getId();
                 //go through each node within each entity type
-                for (Node node : entityNodes) {
+                for (com.alexmerz.graphviz.objects.Node node : entityNodes) {
                     //get the name and description of the node
                     String entityName = node.getId().getId();
                     String entityDescription = node.getAttribute("description");
@@ -121,9 +120,9 @@ public final class GameServer {
         }
     
         for (Edge edge : paths) {
-            Node fromLocation = edge.getSource().getNode();
+            com.alexmerz.graphviz.objects.Node fromLocation = edge.getSource().getNode();
             String fromName = fromLocation.getId().getId();
-            Node toLocation = edge.getTarget().getNode();
+            com.alexmerz.graphviz.objects.Node toLocation = edge.getTarget().getNode();
             String toName = toLocation.getId().getId();
             Path path = new Path(toName, fromName);
             for (Location location : locationsList){
@@ -135,94 +134,115 @@ public final class GameServer {
         return locationsList;
     }
 
-    public ArrayList<Location> loadActionsFile(String entityFileName) throws ParseException {
+    public ArrayList<Action> loadActionsFile(String entityFileName) throws ParseException {
         ArrayList<Action> actions = new ArrayList<>();
 
-        DocumentBuilderFactory factory;
-        DocumentBuilder builder;
-        factory = DocumentBuilderFactory.newInstance();
-        Document document;
-       
-        try {
-            builder = factory.newDocumentBuilder();
-            String path = "config" + File.separator + entityFileName;
-            document = builder.parse(path);
-        } catch (IOException | SAXException e) {
-            System.err.println("Exception: " + e.getMessage());
-        }
+DocumentBuilderFactory factory;
+DocumentBuilder builder;
+factory = DocumentBuilderFactory.newInstance();
+Document document = null;
 
-        Element root = document.getDocumentElement();
-        NodeList actionNodes = root.getChildNodes();
+try {
+    builder = factory.newDocumentBuilder();
+    String path = "config" + File.separator + entityFileName;
+    document = builder.parse(path);
+} catch (ParserConfigurationException | IOException | SAXException e) {
+    System.err.println("Exception: " + e.getMessage());
+}
 
-        for (int i = 0; i < actionNodes.getLength(); i++) {
-            org.w3c.dom.Node currActionNode = actionNodes.item(i);
-            ArrayList<String> triggers = new ArrayList<>();
-            ArrayList<String> consumedEntities = new ArrayList<>();
-            ArrayList<String> producedEntities = new ArrayList<>();
-            ArrayList<String> subjects = new ArrayList<>();
-            String narration = "";
-            Element actionElement = (Element) currActionNode;
-            
-            //get the triggers element
-            NodeList triggersList = actionElement.getElementsByTagName("triggers");
-            if (triggersList.getLength() > 0) {
-                Element triggersElement = (Element) triggersList.item(0);
-                NodeList keywordList = triggersElement.getElementsByTagName("keyword");
-                for (int j = 0; j < keywordList.getLength(); j++) {
-                    Element keyword = (Element) keywordList.item(j);
-                    String triggerPhrase = keyword.getTextContent();
-                    triggers.add(triggerPhrase);
-                }
-            }
+if (document == null) {
+    throw new IllegalStateException("Document is null");
+}
+Element root = document.getDocumentElement();
+NodeList actionNodes = root.getChildNodes();
 
-            //get the subjects element
-            NodeList subjectsList = actionElement.getElementsByTagName("subjects");
-            if (subjectsList.getLength() > 0) {
-                Element subjectsElement = (Element) subjectsList.item(0);
-                NodeList entityList = subjectsElement.getElementsByTagName("entity");
-                for (int j = 0; j < entityList.getLength(); j++) {
-                    Element entity = (Element) entityList.item(j);
-                    String subject = entity.getTextContent();
-                    subjects.add(subject);
-                }
-            }
-
-            //gett the consumed element
-            NodeList consumedList = actionElement.getElementsByTagName("consumed");
-            if (consumedList.getLength() > 0) {
-                Element consumedElement = (Element) consumedList.item(0);
-                NodeList entityListConsumed = consumedElement.getElementsByTagName("entity");
-                for (int j = 0; j < entityListConsumed.getLength(); j++) {
-                    Element entity = (Element) entityListConsumed.item(j);
-                    String consumedEntity = entity.getTextContent();
-                    consumedEntities.add(consumedEntity);
-                }
-            }
-
-            // get the produced element
-            NodeList producedList = actionElement.getElementsByTagName("produced");
-            if (producedList.getLength() > 0) {
-                Element producedElement = (Element) producedList.item(0);
-                NodeList entityListProduced = producedElement.getElementsByTagName("entity");
-                for (int j = 0; j < entityListProduced.getLength(); j++) {
-                    Element entity = (Element) entityListProduced.item(j);
-                    String producedEntity = entity.getTextContent();
-                    producedEntities.add(producedEntity);
-                }
-            }
-
-            // get the narration element
-            NodeList narrationList = actionElement.getElementsByTagName("narration");
-            if (narrationList.getLength() > 0) {
-                Element narrationElement = (Element) narrationList.item(0);
-                narration = narrationElement.getTextContent();                   
-            }
-
-            Action action = new Action(triggers, subjects, producedEntities, consumedEntities, narration);
-            actions.add(action);
-        }
-        return actions;
+for (int i = 0; i < actionNodes.getLength(); i++) {
+    org.w3c.dom.Node currActionNode = actionNodes.item(i);
+    if (currActionNode.getNodeType() != org.w3c.dom.Node.ELEMENT_NODE) {
+        continue;
     }
+    Element actionElement = (Element) currActionNode;
+    ArrayList<String> triggers = new ArrayList<>();
+    ArrayList<String> consumedEntities = new ArrayList<>();
+    ArrayList<String> producedEntities = new ArrayList<>();
+    ArrayList<String> subjects = new ArrayList<>();
+    String narration = "";
+
+    // Get the triggers element
+    NodeList triggersList = actionElement.getElementsByTagName("triggers");
+    if (triggersList.getLength() > 0) {
+        Element triggersElement = (Element) triggersList.item(0);
+        NodeList keywordList = triggersElement.getElementsByTagName("keyword");
+        for (int j = 0; j < keywordList.getLength(); j++) {
+            org.w3c.dom.Node keywordNode = keywordList.item(j);
+            if (keywordNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+                Element keyword = (Element) keywordNode;
+                String triggerPhrase = keyword.getTextContent();
+                triggers.add(triggerPhrase);
+            } 
+        }
+    }
+
+    // Get the subjects element
+    NodeList subjectsList = actionElement.getElementsByTagName("subjects");
+    if (subjectsList.getLength() > 0) {
+        Element subjectsElement = (Element) subjectsList.item(0);
+        NodeList entityList = subjectsElement.getElementsByTagName("entity");
+        for (int j = 0; j < entityList.getLength(); j++) {
+            org.w3c.dom.Node entityNode = entityList.item(j);
+            if (entityNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+                Element entity = (Element) entityNode;
+                String subject = entity.getTextContent();
+                subjects.add(subject);
+            } 
+        }
+    }
+
+    // Get the consumed element
+    NodeList consumedList = actionElement.getElementsByTagName("consumed");
+    if (consumedList.getLength() > 0) {
+        Element consumedElement = (Element) consumedList.item(0);
+        NodeList entityListConsumed = consumedElement.getElementsByTagName("entity");
+        for (int j = 0; j < entityListConsumed.getLength(); j++) {
+            org.w3c.dom.Node entityNode = entityListConsumed.item(j);
+            if (entityNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+                Element entity = (Element) entityNode;
+                String consumedEntity = entity.getTextContent();
+                consumedEntities.add(consumedEntity);
+            } 
+        }
+    }
+
+    // Get the produced element
+    NodeList producedList = actionElement.getElementsByTagName("produced");
+    if (producedList.getLength() > 0) {
+        Element producedElement = (Element) producedList.item(0);
+        NodeList entityListProduced = producedElement.getElementsByTagName("entity");
+        for (int j = 0; j < entityListProduced.getLength(); j++) {
+            org.w3c.dom.Node entityNode = entityListProduced.item(j);
+            if (entityNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+                Element entity = (Element) entityNode;
+                String producedEntity = entity.getTextContent();
+                producedEntities.add(producedEntity);
+            } 
+        }
+    }
+    // Get the narration element
+    NodeList narrationList = actionElement.getElementsByTagName("narration");
+    if (narrationList.getLength() > 0) {
+        Element narrationElement = (Element) narrationList.item(0);
+        narration = narrationElement.getTextContent();
+    }
+
+    Action action = new Action(triggers, subjects, consumedEntities, producedEntities, narration);
+    actions.add(action);
+}
+return actions;
+}
+
+
+        
+    
 
 
 

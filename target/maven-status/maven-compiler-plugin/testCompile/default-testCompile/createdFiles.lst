@@ -1,2 +1,3 @@
 edu\uob\CommandTests.class
+edu\uob\ReadActionFileTests.class
 edu\uob\readEntityFileTests.class

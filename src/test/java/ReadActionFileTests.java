@@ -1,17 +1,14 @@
 package edu.uob;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.alexmerz.graphviz.ParseException;
-
-import edu.uob.GameServer;
 
 public class ReadActionFileTests {
   private GameServer server;
@@ -24,7 +21,7 @@ public class ReadActionFileTests {
 
   @Test
   void testTriggers() throws ParseException {
-        ArrayList<Actions> actions = server.readEntityFile("actions.xml");
+        ArrayList<Action> actions = server.loadActionsFile("actions.xml");
         String[] expectedTriggers = {"open", "unlock", "chop", "cut", "cutdown", "fight", "hit", "attack", "drink", "pay", "bridge", "dig"};
         Set<String> actualTriggers = new HashSet<>();
         for (Action action : actions) {
@@ -38,7 +35,7 @@ public class ReadActionFileTests {
 
     @Test
     void testSubjects() throws ParseException {
-          ArrayList<Actions> actions = server.readEntityFile("actions.xml");
+          ArrayList<Action> actions = server.loadActionsFile("actions.xml");
           String[] expectedSubjects = {"trapdoor", "key", "tree", "axe", "potion", "elf", "coin", "log", "river"};
           Set<String> actualSubjects = new HashSet<>();
           for (Action action : actions) {
@@ -52,8 +49,8 @@ public class ReadActionFileTests {
 
       @Test
       void testConsumed() throws ParseException {
-            ArrayList<Actions> actions = server.readEntityFile("actions.xml");
-            String[] expectedConsumeds = {"open", "unlock", "chop", "cut", "cutdown", "fight", "hit", "attack", "drink", "pay", "bridge", "dig"};
+            ArrayList<Action> actions = server.loadActionsFile("actions.xml");
+            String[] expectedConsumeds = {"key", "potion", "tree", "health", "coin", "log", "ground"};
             Set<String> actualConsumeds = new HashSet<>();
             for (Action action : actions) {
                 actualConsumeds.addAll(action.getConsumed());
@@ -66,11 +63,11 @@ public class ReadActionFileTests {
 
         @Test
         void testProduced() throws ParseException {
-              ArrayList<Actions> actions = server.readEntityFile("actions.xml");
-              String[] expectedProduceds = {"open", "unlock", "chop", "cut", "cutdown", "fight", "hit", "attack", "drink", "pay", "bridge", "dig"};
+              ArrayList<Action> actions = server.loadActionsFile("actions.xml");
+              String[] expectedProduceds = {"cellar", "log", "health", "shovel", "clearing", "gold", "hole", "lumberjack"};
               Set<String> actualProduceds = new HashSet<>();
               for (Action action : actions) {
-                  actualProduceds.addAll(action.getProduceds());
+                  actualProduceds.addAll(action.getProduced());
               }
       
               for (String expectedProduced : expectedProduceds) {
@@ -80,20 +77,17 @@ public class ReadActionFileTests {
 
           @Test
           void testNarration() throws ParseException {
-                ArrayList<Actions> actions = server.readEntityFile("actions.xml");
-                String[] expectedNarrations = {"open", "unlock", "chop", "cut", "cutdown", "fight", "hit", "attack", "drink", "pay", "bridge", "dig"};
+                ArrayList<Action> actions = server.loadActionsFile("actions.xml");
+                String[] expectedNarrations = {"You unlock the door and see steps leading down into a cellar"};
                 Set<String> actualNarrations = new HashSet<>();
                 for (Action action : actions) {
-                    actualNarrations.addAll(action.getNarrations());
+                    actualNarrations.add(action.getNarration());
                 }
         
                 for (String expectedNarration : expectedNarrations) {
                     assertTrue(actualNarrations.contains(expectedNarration), "Narration '" + expectedNarration + "' should be present.");
                 }
             }
-
-
-
 }
 
 

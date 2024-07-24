@@ -121,6 +121,54 @@ public final class GameServer {
         return response;
     }
 
+    // Move player to a new location if the location provided is valid
+    // Return a response to the 'goto' command being sent
+    public String gotoCommand(Player player, ArrayList<Location> map, String command) {
+        int newLocation = 0;
+        boolean moving = false;
+        String response = "";
+        String intendedLocation;
+        Location currentLocation = map.get(player.getLocation());
+
+        // Check that the command only contains 'goto' and 'location', two words exactly.
+        if(!command.trim().matches("^\\s*\\w+\\s+\\w+\\s*$")) {
+            response += "You must provide a valid location you wish to move to.\n";
+            return response;
+        }
+
+        // Get the intended location from the command.
+        intendedLocation = command.split(" ")[1].trim();
+
+        // Check for a matching location in the possible paths out of current location.
+        foundMatch:
+        // Search through the available paths for a match
+        for (int i = 0; i < currentLocation.getPathsOut().size(); i++) {
+            if (currentLocation.getPathsOut().get(i).getDestination().equals(intendedLocation)) {
+                // If a match is found, get the location within the 'maps' structure
+                for (newLocation = 0; newLocation < map.size(); newLocation++) {
+                    if(currentLocation.getPathsOut().get(i).getDestination().equals(map.get(newLocation).getName())) {
+                        moving = true;
+                        break foundMatch;
+                    }
+                }
+                // We should never reach this. TODO: Error state.
+                // If we reach this then the entities.dot file contains errors.
+                break;
+            }
+        }
+
+        if (!moving) {
+            response += "'" + intendedLocation + "' is not a location you can travel to.\n";
+        }
+        else {
+            // Move the player
+            player.setLocation(newLocation);
+            response += "You have moved to " + map.get(newLocation).getName() + "\n";
+        }
+
+        return response;
+    }
+
     // Handle an incoming command from a player
     public String handleCommand(String incomming) throws ParseException {
         int p;
@@ -143,6 +191,9 @@ public final class GameServer {
         }
         else if (filteredCommand.startsWith("inv")) {
             response += invCommand(player, map, filteredCommand);
+        }
+        else if (filteredCommand.startsWith("goto")) {
+            response += gotoCommand(player, map, filteredCommand);
         }
 
         return response;

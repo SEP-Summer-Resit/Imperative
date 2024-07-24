@@ -86,12 +86,37 @@ public final class GameServer {
         currentLocation = map.get(player.getLocation());
 
         if (filteredCommand.startsWith("look")) {
-            response += "The location you are currently in is ???\n";
-            response += "There are the following artefacts in this location ???\n";
-            response += "There are paths to the following locations ???";
+            response += "You are in " + currentLocation.getDescription() + "\n";
+            if(!currentLocation.getArtefacts().isEmpty()) {
+                response += "There are the following artefacts in this location: \n";
+                for (int i = 0; i < currentLocation.getArtefacts().size(); i++) {
+                    response += "* " + currentLocation.getArtefacts().get(i).getName() + "\n";
+                }
+            }
+            if(!currentLocation.getFurniture().isEmpty()) {
+                response += "In the " + currentLocation.getName() + " there are:\n";
+                for (int i = 0; i < currentLocation.getFurniture().size(); i++) {
+                    response += "* " + currentLocation.getFurniture().get(i).getName() + "\n";
+                }
+            }
+            if(!currentLocation.getPathsOut().isEmpty()) {
+                response += "There are paths to the following locations: \n";
+                for (int i = 0; i < currentLocation.getPathsOut().size(); i++) {
+                    response += "* " + currentLocation.getPathsOut().get(i).getDestination() + "\n";
+                }
+            }
         }
+
         if (filteredCommand.startsWith("inv")) {
-            response += "You have the following items in your inventory ???";
+            if (!player.getInventory().isEmpty()) {
+                response += "You have the following items in your inventory:\n";
+                for (int i = 0; i < player.getInventory().size(); i++) {
+                    response += "* " + player.getInventory().get(i).getName() + "\n";
+                }
+            }
+            else {
+                response += "You have no items in your inventory\n";
+            }
         }
         return response;
     }

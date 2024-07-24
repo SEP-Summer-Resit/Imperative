@@ -10,14 +10,7 @@ public class Location extends Entity {
     private List<Artefact> artefacts;
     private List<Path> pathsOut;
 
-    public Location() {
-        this.name = "";
-        this.description = "";
-        this.artefacts = new ArrayList<Artefact>();
-        this.pathsOut = new ArrayList<Path>();
-        this.characters = new ArrayList<Character>();
-        this.furniture = new ArrayList<Furniture>();
-    }
+  
 
     public Location(String name, String description) {
         super(name, description);

@@ -26,7 +26,7 @@ kill_server
 
 # Pull the latest code from the master branch
 git fetch
-git pull origin master
+git pull
 
 # Build the project using Maven
 ./mvnw clean compile

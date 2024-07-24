@@ -65,7 +65,7 @@ public final class GameServer {
         ArrayList<Location> locationsList = new ArrayList<>();
         Parser parser = new Parser();
         String file = "config" + File.separator + entityFileName;
-        try (FileReader reader = new FileReader("config\\entities.dot")) {
+        try (FileReader reader = new FileReader("config" + File.separator + "entities.dot")) {
             parser.parse(reader);
         } catch (FileNotFoundException e) {
             System.err.println("File not found: " + e.getMessage());

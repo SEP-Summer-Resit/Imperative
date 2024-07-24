@@ -4,29 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class Location {
-    private String name;
-    private String description;
+public class Location extends Entity {
     private List<Character> characters;
     private List<Furniture> furniture;
     private List<Artefact> artefacts;
     private List<Path> pathsOut;
 
     public Location(String name, String description) {
-        this.name = name;
-        this.description = description;
+        super(name, description);
         this.artefacts = new ArrayList<Artefact>();
         this.pathsOut = new ArrayList<Path>();
         this.characters = new ArrayList<Character>();
         this.furniture = new ArrayList<Furniture>();
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public List<Artefact> getArtefacts() {

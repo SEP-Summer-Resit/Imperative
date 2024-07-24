@@ -94,10 +94,10 @@ public final class GameServer {
                     //get the name and description of the node
                     String entityName = node.getId().getId();
                     String entityDescription = node.getAttribute("description");
-                    System.out.println(entityName);
+                    //System.out.println(entityName);
                     //check the shape to decide what it is and add to location
-                    if (entityType.equals("artefacts")){
                     System.out.println(entityName);
+                    if (entityType.equals("artefacts")){
                     Artefact artefact = new Artefact(entityName, entityDescription);
                     currLoc.addArtefact(artefact);
                     }
@@ -105,7 +105,8 @@ public final class GameServer {
                         Furniture furniture = new Furniture(entityName, entityDescription);
                         currLoc.addFurniture(furniture);
                     }
-                    if (entityType.equals("character")){
+                    if (entityType.equals("characters")){
+                        System.out.println(entityName);
                         Character character = new Character(entityName, entityDescription);
                         currLoc.addCharacter(character);
                     }

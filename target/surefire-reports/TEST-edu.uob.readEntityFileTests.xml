@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="edu.uob.readEntityFileTests" time="0.135" tests="2" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="edu.uob.readEntityFileTests" time="0.782" tests="4" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.cpu.isalist" value="amd64"/>
@@ -15,7 +15,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="GB"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk-21\bin"/>
-    <property name="sun.java.command" value="C:\Users\Maisie Sadler\AppData\Local\Temp\surefire12082650478053626507\surefirebooter12923327818029365262.jar C:\Users\Maisie Sadler\AppData\Local\Temp\surefire12082650478053626507 2024-07-23T18-01-11_860-jvmRun1 surefire2560801247908234189tmp surefire_01673697305332924958tmp"/>
+    <property name="sun.java.command" value="C:\Users\Maisie Sadler\AppData\Local\Temp\surefire14999782397737215342\surefirebooter18105257188725711400.jar C:\Users\Maisie Sadler\AppData\Local\Temp\surefire14999782397737215342 2024-07-24T08-39-13_334-jvmRun1 surefire14130749583071672832tmp surefire_06947574882740644927tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="C:\Users\Maisie Sadler\Documents\University\SEP\Imperative\target\test-classes;C:\Users\Maisie Sadler\Documents\University\SEP\Imperative\target\classes;C:\Users\Maisie Sadler\.m2\repository\org\junit\jupiter\junit-jupiter\5.8.2\junit-jupiter-5.8.2.jar;C:\Users\Maisie Sadler\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.8.2\junit-jupiter-api-5.8.2.jar;C:\Users\Maisie Sadler\.m2\repository\org\opentest4j\opentest4j\1.2.0\opentest4j-1.2.0.jar;C:\Users\Maisie Sadler\.m2\repository\org\junit\platform\junit-platform-commons\1.8.2\junit-platform-commons-1.8.2.jar;C:\Users\Maisie Sadler\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\Maisie Sadler\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.8.2\junit-jupiter-params-5.8.2.jar;C:\Users\Maisie Sadler\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.8.2\junit-jupiter-engine-5.8.2.jar;C:\Users\Maisie Sadler\.m2\repository\org\junit\platform\junit-platform-engine\1.8.2\junit-platform-engine-1.8.2.jar;C:\Users\Maisie Sadler\.m2\repository\org\junit\platform\junit-platform-suite\1.8.2\junit-platform-suite-1.8.2.jar;C:\Users\Maisie Sadler\.m2\repository\org\junit\platform\junit-platform-suite-api\1.8.2\junit-platform-suite-api-1.8.2.jar;C:\Users\Maisie Sadler\.m2\repository\org\junit\platform\junit-platform-suite-engine\1.8.2\junit-platform-suite-engine-1.8.2.jar;C:\Users\Maisie Sadler\.m2\repository\org\junit\platform\junit-platform-suite-commons\1.8.2\junit-platform-suite-commons-1.8.2.jar;C:\Users\Maisie Sadler\.m2\repository\org\junit\platform\junit-platform-launcher\1.8.2\junit-platform-launcher-1.8.2.jar;C:\Users\Maisie Sadler\.m2\repository\com\alexmerz\graphviz\dot-parser\1.0\dot-parser-1.0.jar;"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -30,7 +30,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="C:\Users\Maisie Sadler\AppData\Local\Temp\surefire12082650478053626507\surefirebooter12923327818029365262.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\Maisie Sadler\AppData\Local\Temp\surefire14999782397737215342\surefirebooter18105257188725711400.jar"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="21.0.1+12-LTS-29"/>
@@ -58,79 +58,84 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="65.0"/>
   </properties>
-  <testcase name="testLocations" classname="edu.uob.readEntityFileTests" time="0.097">
+  <testcase name="testLocations" classname="edu.uob.readEntityFileTests" time="0.527">
     <system-out><![CDATA[potion
-potion
 axe
-axe
-coin
 coin
 trapdoor
 key
-key
 tree
 elf
-horn
+elf
 horn
 river
 ground
 lumberjack
-log
+lumberjack
 log
 shovel
-shovel
-gold
 gold
 hole
 ]]></system-out>
   </testcase>
-  <testcase name="testArtefacts" classname="edu.uob.readEntityFileTests" time="0.029">
-    <system-out><![CDATA[Starting testArtefacts
-potion
-potion
+  <testcase name="testFurniture" classname="edu.uob.readEntityFileTests" time="0.048">
+    <system-out><![CDATA[potion
 axe
-axe
-coin
 coin
 trapdoor
 key
-key
 tree
 elf
-horn
+elf
 horn
 river
 ground
 lumberjack
-log
+lumberjack
 log
 shovel
-shovel
-gold
 gold
 hole
-cabin
-cabin
-potion
-cabin
+]]></system-out>
+  </testcase>
+  <testcase name="testCharacters" classname="edu.uob.readEntityFileTests" time="0.102">
+    <system-out><![CDATA[potion
 axe
-cabin
 coin
-forest
-forest
+trapdoor
 key
-cellar
-riverbank
-riverbank
+tree
+elf
+elf
 horn
-clearing
-storeroom
-storeroom
+river
+ground
+lumberjack
+lumberjack
 log
-storeroom
 shovel
-storeroom
 gold
+hole
+]]></system-out>
+  </testcase>
+  <testcase name="testArtefacts" classname="edu.uob.readEntityFileTests" time="0.057">
+    <system-out><![CDATA[potion
+axe
+coin
+trapdoor
+key
+tree
+elf
+elf
+horn
+river
+ground
+lumberjack
+lumberjack
+log
+shovel
+gold
+hole
 ]]></system-out>
   </testcase>
 </testsuite>

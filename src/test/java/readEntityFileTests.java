@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 
 import com.alexmerz.graphviz.ParseException;
 
+import edu.uob.Character;
+
 
 final class readEntityFileTests {
 
@@ -35,25 +37,55 @@ final class readEntityFileTests {
 
   @Test
   void testArtefacts() throws ParseException {
-    System.out.println("Starting testArtefacts");
     ArrayList<Location> locations = server.readEntityFile("etities.dot");
-    String[] expectedArtefacts = {"potion", "axe", "coin"};
+    String[] expectedArtefacts = {"potion", "axe", "coin", "log", "shovel", "gold", "key", "horn"};
     Set<String> actualArtefacts = new HashSet<>();
     for (Location location : locations) {
-      System.out.println(location.getName());
       for (Artefact artefact : location.getArtefacts()){
-          actualArtefacts.add(artefact.getName());
-          System.out.println(location.getName());
-          System.out.println(artefact.getName());
+        actualArtefacts.add(artefact.getName());
       }
     }
-    
     for (String expectedArtefact : expectedArtefacts) {
       assertTrue(actualArtefacts.contains(expectedArtefact), "artefact '" + expectedArtefact + "' should be present.");
     }
-    }
-
-
   }
+
+  @Test
+  void testFurniture() throws ParseException {
+    ArrayList<Location> locations = server.readEntityFile("etities.dot");
+    String[] expectedFurnitures = {"trapdoor", "tree", "river", "ground", "hole"};
+    Set<String> actualFurniture = new HashSet<>();
+    for (Location location : locations) {
+      for (Furniture furniture : location.getFurniture()){
+        actualFurniture.add(furniture.getName());
+      }
+    }
+    for (String expectedFurniture : expectedFurnitures) {
+      assertTrue(actualFurniture.contains(expectedFurniture), "furniture '" + expectedFurniture + "' should be present.");
+    }
+  }
+
+  @Test
+  void testCharacters() throws ParseException {
+    ArrayList<Location> locations = server.readEntityFile("etities.dot");
+    String[] expectedCharacters = {"lumberjack", "elf"};
+    Set<String> actualCharacters = new HashSet<>();
+    for (Location location : locations) {
+      for (Character character : location.getCharacters()){
+        actualCharacters.add(character.getName());
+      }
+    }
+    for (String expectedCharacter : expectedCharacters) {
+      assertTrue(actualCharacters.contains(expectedCharacter), "character '" + expectedCharacter + "' should be present.");
+    }
+  }
+
+  
+
+}
+
+
+
+  
 
 

@@ -86,7 +86,10 @@ public final class GameServer {
         currentLocation = map.get(player.getLocation());
 
         if (filteredCommand.startsWith("look")) {
-            response += "You are in " + currentLocation.getDescription() + "\n";
+            response += "You are in " +
+                    // Uncapitalize the first letter of description which comes in the middle of the sentence.
+                    java.lang.Character.toLowerCase(currentLocation.getDescription().charAt(0)) +
+                    currentLocation.getDescription().substring(1) + "\n";
             if(!currentLocation.getArtefacts().isEmpty()) {
                 response += "There are the following artefacts in this location: \n";
                 for (int i = 0; i < currentLocation.getArtefacts().size(); i++) {

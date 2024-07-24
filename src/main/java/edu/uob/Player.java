@@ -27,4 +27,8 @@ public class Player {
     public void setLocation(int location) {
         this.location = location;
     }
+
+    public void addArtefactToInventory(Artefact artefact) {
+        this.inventory.add(artefact);
+    }
 }

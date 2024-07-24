@@ -169,6 +169,41 @@ public final class GameServer {
         return response;
     }
 
+    // Move artefact from location to inventory if it's available to take
+    // Return a response to the 'get' command being sent
+    public String getCommand(Player player, ArrayList<Location> map, String command) {
+        String response = "";
+        Boolean artefactTaken = false;
+        String intendedArtefact;
+        Location currentLocation = map.get(player.getLocation());
+
+        // Check that the command only contains 'get' and 'artefact', two words exactly.
+        if(!command.trim().matches("^\\s*\\w+\\s+\\w+\\s*$")) {
+            response += "You must provide a valid artefact you wish to get.\n";
+            return response;
+        }
+
+        // Get the intended location from the command.
+        intendedArtefact = command.split(" ")[1].trim();
+
+        for (int i = 0; i < currentLocation.getArtefacts().size(); i++) {
+            Artefact artefact = currentLocation.getArtefacts().get(i);
+            if(artefact.getName().equals(intendedArtefact)) {
+                player.addArtefactToInventory(artefact);
+                currentLocation.removeArtefact(artefact);
+                response += "You now have '" + artefact.getName() + "' in your inventory\n";
+                artefactTaken = true;
+                break;
+            }
+        }
+
+        if(!artefactTaken) {
+            response += "'" + intendedArtefact + "' is not available to take.";
+        }
+
+        return response;
+    }
+
     // Handle an incoming command from a player
     public String handleCommand(String incomming) throws ParseException {
         int p;
@@ -194,6 +229,9 @@ public final class GameServer {
         }
         else if (filteredCommand.startsWith("goto")) {
             response += gotoCommand(player, map, filteredCommand);
+        }
+        else if (filteredCommand.startsWith("get")) {
+            response += getCommand(player, map, filteredCommand);
         }
 
         return response;

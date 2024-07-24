@@ -16,6 +16,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
 import com.alexmerz.graphviz.ParseException;
 import com.alexmerz.graphviz.Parser;
 import com.alexmerz.graphviz.objects.Edge;
@@ -125,6 +134,98 @@ public final class GameServer {
         } 
         return locationsList;
     }
+
+    public ArrayList<Location> loadActionsFile(String entityFileName) throws ParseException {
+        ArrayList<Action> actions = new ArrayList<>();
+
+        DocumentBuilderFactory factory;
+        DocumentBuilder builder;
+        factory = DocumentBuilderFactory.newInstance();
+        Document document;
+       
+        try {
+            builder = factory.newDocumentBuilder();
+            String path = "config" + File.separator + entityFileName;
+            document = builder.parse(path);
+        } catch (IOException | SAXException e) {
+            System.err.println("Exception: " + e.getMessage());
+        }
+
+        Element root = document.getDocumentElement();
+        NodeList actionNodes = root.getChildNodes();
+
+        for (int i = 0; i < actionNodes.getLength(); i++) {
+            org.w3c.dom.Node currActionNode = actionNodes.item(i);
+            ArrayList<String> triggers = new ArrayList<>();
+            ArrayList<String> consumedEntities = new ArrayList<>();
+            ArrayList<String> producedEntities = new ArrayList<>();
+            ArrayList<String> subjects = new ArrayList<>();
+            String narration = "";
+            Element actionElement = (Element) currActionNode;
+            
+            //get the triggers element
+            NodeList triggersList = actionElement.getElementsByTagName("triggers");
+            if (triggersList.getLength() > 0) {
+                Element triggersElement = (Element) triggersList.item(0);
+                NodeList keywordList = triggersElement.getElementsByTagName("keyword");
+                for (int j = 0; j < keywordList.getLength(); j++) {
+                    Element keyword = (Element) keywordList.item(j);
+                    String triggerPhrase = keyword.getTextContent();
+                    triggers.add(triggerPhrase);
+                }
+            }
+
+            //get the subjects element
+            NodeList subjectsList = actionElement.getElementsByTagName("subjects");
+            if (subjectsList.getLength() > 0) {
+                Element subjectsElement = (Element) subjectsList.item(0);
+                NodeList entityList = subjectsElement.getElementsByTagName("entity");
+                for (int j = 0; j < entityList.getLength(); j++) {
+                    Element entity = (Element) entityList.item(j);
+                    String subject = entity.getTextContent();
+                    subjects.add(subject);
+                }
+            }
+
+            //gett the consumed element
+            NodeList consumedList = actionElement.getElementsByTagName("consumed");
+            if (consumedList.getLength() > 0) {
+                Element consumedElement = (Element) consumedList.item(0);
+                NodeList entityListConsumed = consumedElement.getElementsByTagName("entity");
+                for (int j = 0; j < entityListConsumed.getLength(); j++) {
+                    Element entity = (Element) entityListConsumed.item(j);
+                    String consumedEntity = entity.getTextContent();
+                    consumedEntities.add(consumedEntity);
+                }
+            }
+
+            // get the produced element
+            NodeList producedList = actionElement.getElementsByTagName("produced");
+            if (producedList.getLength() > 0) {
+                Element producedElement = (Element) producedList.item(0);
+                NodeList entityListProduced = producedElement.getElementsByTagName("entity");
+                for (int j = 0; j < entityListProduced.getLength(); j++) {
+                    Element entity = (Element) entityListProduced.item(j);
+                    String producedEntity = entity.getTextContent();
+                    producedEntities.add(producedEntity);
+                }
+            }
+
+            // get the narration element
+            NodeList narrationList = actionElement.getElementsByTagName("narration");
+            if (narrationList.getLength() > 0) {
+                Element narrationElement = (Element) narrationList.item(0);
+                narration = narrationElement.getTextContent();                   
+            }
+
+            Action action = new Action(triggers, subjects, producedEntities, consumedEntities, narration);
+            actions.add(action);
+        }
+        return actions;
+    }
+
+
+
 
 
     public String filterCommand(String command){

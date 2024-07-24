@@ -93,6 +93,9 @@ public final class GameServer {
                     response += "* " + currentLocation.getArtefacts().get(i).getName() + "\n";
                 }
             }
+            else {
+                response += "There are no artefacts in this location\n";
+            }
             if(!currentLocation.getFurniture().isEmpty()) {
                 response += "In the " + currentLocation.getName() + " there are:\n";
                 for (int i = 0; i < currentLocation.getFurniture().size(); i++) {
@@ -104,6 +107,9 @@ public final class GameServer {
                 for (int i = 0; i < currentLocation.getPathsOut().size(); i++) {
                     response += "* " + currentLocation.getPathsOut().get(i).getDestination() + "\n";
                 }
+            }
+            else {
+                response += "There are no paths from here\n";
             }
         }
 

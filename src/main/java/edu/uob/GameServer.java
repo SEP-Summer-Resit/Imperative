@@ -10,11 +10,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.*;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -37,8 +32,9 @@ import edu.uob.Character;
 
 public final class GameServer {
 
-    static ArrayList<Player> players = new ArrayList<>();
-    static ArrayList<ArrayList<Location>> maps = new ArrayList<>();
+    private ArrayList<Player> players = new ArrayList<>();
+    private ArrayList<ArrayList<Location>> maps = new ArrayList<>();
+    private ArrayList<Action> actions = new ArrayList<>();
 
     public static void main(String[] args) throws IOException, ParseException {
         GameServer server = new GameServer();
@@ -46,6 +42,11 @@ public final class GameServer {
     }
 
     public GameServer() {
+        try {
+            actions = loadActionsFile("actions.xml");
+        } catch (ParseException e) {
+            System.err.println("Error parsing actions file: " + e.getMessage());
+        }
     }
 
     public int findPlayer(String username) throws ParseException {
@@ -132,6 +133,26 @@ public final class GameServer {
                 response += "You have no items in your inventory\n";
             }
         }
+
+        // Check through all the actions to see if the command matches any of the triggers
+        for (Action action : actions){
+            for (String trigger : action.getTriggers()){
+                if (filteredCommand.startsWith(trigger)){
+                    for (String subject : action.getSubjects()){
+                        System.out.println(subject);
+                        if (player.getInventory().contains(subject)){
+                            System.out.println("yippee");
+                        }
+                        else if (currentLocation.hasArtefact(subject)){
+                            System.out.println("yippee1");
+                        }
+                    }
+                }
+            }
+        }
+
+
+
         return response;
     }
 

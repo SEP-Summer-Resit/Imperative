@@ -20,6 +20,10 @@ public class Location extends Entity {
         this.furniture = new ArrayList<Furniture>();
     }
 
+    public Boolean hasArtefact(String artefactName){
+        return artefacts.contains(artefactName);
+    }
+
     public List<Artefact> getArtefacts() {
         return artefacts;
     }

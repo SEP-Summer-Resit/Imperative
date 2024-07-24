@@ -6,5 +6,10 @@ public class Artefact extends Entity{
         super(name, description);
     }
 
+    public Boolean equals(String check){
+        System.out.println("Comparing " + check + " with " + name + " returning " + check.equals(name));
+        return check.equals(name);
+    }
+
 }
 

@@ -69,6 +69,59 @@ public final class GameServer {
         return i;
     }
 
+    // Return a response to the 'look' command being sent by a player
+    public String lookCommand(Player player, ArrayList<Location> map, String command) {
+        Location currentLocation = map.get(player.getLocation());
+        String response = "";
+
+        response += "You are in " +
+                // Uncapitalize the first letter of description which comes in the middle of the sentence.
+                java.lang.Character.toLowerCase(currentLocation.getDescription().charAt(0)) +
+                currentLocation.getDescription().substring(1) + "\n";
+        if(!currentLocation.getArtefacts().isEmpty()) {
+            response += "There are the following artefacts in this location: \n";
+            for (int i = 0; i < currentLocation.getArtefacts().size(); i++) {
+                response += "* " + currentLocation.getArtefacts().get(i).getName() + "\n";
+            }
+        }
+        else {
+            response += "There are no artefacts in this location\n";
+        }
+        if(!currentLocation.getFurniture().isEmpty()) {
+            response += "In the " + currentLocation.getName() + " there are:\n";
+            for (int i = 0; i < currentLocation.getFurniture().size(); i++) {
+                response += "* " + currentLocation.getFurniture().get(i).getName() + "\n";
+            }
+        }
+        if(!currentLocation.getPathsOut().isEmpty()) {
+            response += "There are paths to the following locations: \n";
+            for (int i = 0; i < currentLocation.getPathsOut().size(); i++) {
+                response += "* " + currentLocation.getPathsOut().get(i).getDestination() + "\n";
+            }
+        }
+        else {
+            response += "There are no paths from here\n";
+        }
+        return response;
+    }
+
+    // Return a response to the 'inv' command being sent by a player
+    public String invCommand(Player player, ArrayList<Location> map, String command) {
+        String response = "";
+
+        if (!player.getInventory().isEmpty()) {
+            response += "You have the following items in your inventory:\n";
+            for (int i = 0; i < player.getInventory().size(); i++) {
+                response += "* " + player.getInventory().get(i).getName() + "\n";
+            }
+        }
+        else {
+            response += "You have no items in your inventory\n";
+        }
+        return response;
+    }
+
+    // Handle an incoming command from a player
     public String handleCommand(String incomming) throws ParseException {
         int p;
         Player player;
@@ -86,47 +139,12 @@ public final class GameServer {
         currentLocation = map.get(player.getLocation());
 
         if (filteredCommand.startsWith("look")) {
-            response += "You are in " +
-                    // Uncapitalize the first letter of description which comes in the middle of the sentence.
-                    java.lang.Character.toLowerCase(currentLocation.getDescription().charAt(0)) +
-                    currentLocation.getDescription().substring(1) + "\n";
-            if(!currentLocation.getArtefacts().isEmpty()) {
-                response += "There are the following artefacts in this location: \n";
-                for (int i = 0; i < currentLocation.getArtefacts().size(); i++) {
-                    response += "* " + currentLocation.getArtefacts().get(i).getName() + "\n";
-                }
-            }
-            else {
-                response += "There are no artefacts in this location\n";
-            }
-            if(!currentLocation.getFurniture().isEmpty()) {
-                response += "In the " + currentLocation.getName() + " there are:\n";
-                for (int i = 0; i < currentLocation.getFurniture().size(); i++) {
-                    response += "* " + currentLocation.getFurniture().get(i).getName() + "\n";
-                }
-            }
-            if(!currentLocation.getPathsOut().isEmpty()) {
-                response += "There are paths to the following locations: \n";
-                for (int i = 0; i < currentLocation.getPathsOut().size(); i++) {
-                    response += "* " + currentLocation.getPathsOut().get(i).getDestination() + "\n";
-                }
-            }
-            else {
-                response += "There are no paths from here\n";
-            }
+            response += lookCommand(player, map, filteredCommand);
+        }
+        else if (filteredCommand.startsWith("inv")) {
+            response += invCommand(player, map, filteredCommand);
         }
 
-        if (filteredCommand.startsWith("inv")) {
-            if (!player.getInventory().isEmpty()) {
-                response += "You have the following items in your inventory:\n";
-                for (int i = 0; i < player.getInventory().size(); i++) {
-                    response += "* " + player.getInventory().get(i).getName() + "\n";
-                }
-            }
-            else {
-                response += "You have no items in your inventory\n";
-            }
-        }
         return response;
     }
 

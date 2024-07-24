@@ -201,7 +201,7 @@ public final class GameServer {
         }
 
         if(!artefactTaken) {
-            response += "'" + intendedArtefact + "' is not available to take.";
+            response += "'" + intendedArtefact + "' is not available to take.\n";
         }
 
         return response;
@@ -236,7 +236,7 @@ public final class GameServer {
         }
 
         if(!artefactDropped) {
-            response += "'" + intendedArtefact + "' is not in your inventory.";
+            response += "'" + intendedArtefact + "' is not in your inventory.\n";
         }
 
         return response;

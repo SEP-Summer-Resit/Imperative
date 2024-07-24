@@ -173,7 +173,7 @@ public final class GameServer {
     // Return a response to the 'get' command being sent
     public String getCommand(Player player, ArrayList<Location> map, String command) {
         String response = "";
-        Boolean artefactTaken = false;
+        boolean artefactTaken = false;
         String intendedArtefact;
         Location currentLocation = map.get(player.getLocation());
 
@@ -199,6 +199,39 @@ public final class GameServer {
 
         if(!artefactTaken) {
             response += "'" + intendedArtefact + "' is not available to take.";
+        }
+
+        return response;
+    }
+
+    public String dropCommand(Player player, ArrayList<Location> map, String command) {
+        String response = "";
+        boolean artefactDropped = false;
+        String intendedArtefact;
+        Location currentLocation = map.get(player.getLocation());
+
+        // Check that the command only contains 'get' and 'artefact', two words exactly.
+        if(!command.trim().matches("^\\s*\\w+\\s+\\w+\\s*$")) {
+            response += "You must provide a valid artefact you wish to drop from your inventory.\n";
+            return response;
+        }
+
+        // Get the intended location from the command.
+        intendedArtefact = command.split(" ")[1].trim();
+
+        for (int i = 0; i < player.getInventory().size(); i++) {
+            Artefact artefact = player.getInventory().get(i);
+            if(artefact.getName().equals(intendedArtefact)) {
+                currentLocation.addArtefact(artefact);
+                player.removeArtefactFromInventory(artefact);
+                response += "You have dropped '" + artefact.getName() + "' from your inventory\n";
+                artefactDropped = true;
+                break;
+            }
+        }
+
+        if(!artefactDropped) {
+            response += "'" + intendedArtefact + "' is not in your inventory.";
         }
 
         return response;
@@ -232,6 +265,9 @@ public final class GameServer {
         }
         else if (filteredCommand.startsWith("get")) {
             response += getCommand(player, map, filteredCommand);
+        }
+        else if (filteredCommand.startsWith("drop")) {
+            response += dropCommand(player, map, filteredCommand);
         }
 
         return response;

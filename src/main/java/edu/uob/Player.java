@@ -31,4 +31,8 @@ public class Player {
     public void addArtefactToInventory(Artefact artefact) {
         this.inventory.add(artefact);
     }
+
+    public void removeArtefactFromInventory(Artefact artefact) {
+        this.inventory.remove(artefact);
+    }
 }

@@ -80,7 +80,62 @@ final class readEntityFileTests {
     }
   }
 
-  
+  @Test
+  void testDescription() throws ParseException {
+    ArrayList<Location> locations = server.readEntityFile("etities.dot");
+    String expectedDescriptionCabin = ("A log cabin in the woods");
+    String expectedDescriptionPotion = ("A bottle of magic potion");
+    String actualDescriptionCabin = "";
+    String actualDescriptionPotion = "";
+    for (Location location : locations) {
+      if ((location.getName()).equals("cabin")){
+        actualDescriptionCabin = location.getDescription();
+        for (Artefact artefact : location.getArtefacts()) {
+          if ((artefact.getName()).equals("potion")){
+            actualDescriptionPotion = artefact.getDescription();
+          }
+        }
+      }
+    }
+    assertTrue(actualDescriptionCabin.equals(expectedDescriptionCabin), "character '" + expectedDescriptionCabin + "' should be present.");
+    assertTrue(actualDescriptionPotion.equals(expectedDescriptionPotion), "character '" + expectedDescriptionPotion + "' should be present.");
+    
+    
+  }
+
+  @Test
+  void testPaths() throws ParseException {
+    ArrayList<Location> locations = server.readEntityFile("etities.dot");
+    String[] expectedPathsForest = {"cabin", "riverbank"};
+    String[] expectedPathsCabin = {"forest"};
+    String[] expectedPathsClearing = {"riverbank"};
+    Set<String> actualPathsOutForest = new HashSet<>();
+    Set<String> actualPathsOutCabin = new HashSet<>();
+    Set<String> actualPathsOutClearing = new HashSet<>();
+    for (Location location : locations) {
+      if (location.getName().equals("cabin"))
+      for (Path path : location.getPathsOut()){
+        actualPathsOutCabin.add(path.getDestination());
+      }
+      if (location.getName().equals("forest"))
+      for (Path path : location.getPathsOut()){
+        actualPathsOutForest.add(path.getDestination());
+      }
+      if (location.getName().equals("clearing"))
+      for (Path path : location.getPathsOut()){
+        actualPathsOutClearing.add(path.getDestination());
+      }
+    }
+    for (String expectedPathForest : expectedPathsForest) {
+      assertTrue(actualPathsOutForest.contains(expectedPathForest), "character '" + expectedPathForest + "' should be present.");
+    }
+    for (String expectedPathClearing : expectedPathsClearing) {
+      assertTrue(actualPathsOutForest.contains(expectedPathClearing), "character '" + expectedPathClearing + "' should be present.");
+    }
+    for (String expectedPathCabin : expectedPathsCabin) {
+      assertTrue(actualPathsOutCabin.contains(expectedPathCabin), "character '" + expectedPathCabin + "' should be present.");
+    }
+  }
 
 }
 

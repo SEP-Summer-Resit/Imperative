@@ -90,11 +90,9 @@ public final class GameServer {
                 String entityType = entity.getId().getId();
                 //go through each node within each entity type
                 for (Node node : entityNodes) {
-
                     //get the name and description of the node
                     String entityName = node.getId().getId();
                     String entityDescription = node.getAttribute("description");
-                    //System.out.println(entityName);
                     //check the shape to decide what it is and add to location
                     System.out.println(entityName);
                     if (entityType.equals("artefacts")){
@@ -126,8 +124,7 @@ public final class GameServer {
                     location.addPath(path);
                 }
             }
-        }
-        
+        } 
         return locationsList;
     }
 

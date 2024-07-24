@@ -11,7 +11,6 @@ import com.alexmerz.graphviz.ParseException;
 
 import edu.uob.Character;
 
-
 final class readEntityFileTests {
 
   private GameServer server;
@@ -76,7 +75,7 @@ final class readEntityFileTests {
       }
     }
     for (String expectedCharacter : expectedCharacters) {
-      assertTrue(actualCharacters.contains(expectedCharacter), "Character '" + expectedCharacter + "' should be present.");
+      assertTrue(actualCharacters.contains(expectedCharacter), " Character '" + expectedCharacter + "' should be present.");
     }
   }
 

@@ -10,15 +10,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-
-import java.util.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -317,45 +314,22 @@ public final class GameServer {
         currentLocation = map.get(player.getLocation());
 
         if (filteredCommand.startsWith("look")) {
-            response += "You are in " + currentLocation.getDescription() + "\n";
-            if(!currentLocation.getArtefacts().isEmpty()) {
-                response += "There are the following artefacts in this location: \n";
-                for (int i = 0; i < currentLocation.getArtefacts().size(); i++) {
-                    response += "* " + currentLocation.getArtefacts().get(i).getName() + "\n";
-                }
-            }
-            else {
-                response += "There are no artefacts in this location\n";
-            }
-            if(!currentLocation.getFurniture().isEmpty()) {
-                response += "In the " + currentLocation.getName() + " there are:\n";
-                for (int i = 0; i < currentLocation.getFurniture().size(); i++) {
-                    response += "* " + currentLocation.getFurniture().get(i).getName() + "\n";
-                }
-            }
-            if(!currentLocation.getPathsOut().isEmpty()) {
-                response += "There are paths to the following locations: \n";
-                for (int i = 0; i < currentLocation.getPathsOut().size(); i++) {
-                    response += "* " + currentLocation.getPathsOut().get(i).getDestination() + "\n";
-                }
-            }
-            else {
-                response += "There are no paths from here\n";
-            }
-            return response;
+            response += lookCommand(player, map, filteredCommand);
         }
-
-        if (filteredCommand.startsWith("inv")) {
-            if (!player.getInventory().isEmpty()) {
-                response += "You have the following items in your inventory:\n";
-                for (int i = 0; i < player.getInventory().size(); i++) {
-                    response += "* " + player.getInventory().get(i).getName() + "\n";
-                }
-            }
-            else {
-                response += "You have no items in your inventory\n";
-            }
-            return response;
+        else if (filteredCommand.startsWith("inv")) {
+            response += invCommand(player, map, filteredCommand);
+        }
+        else if (filteredCommand.startsWith("goto")) {
+            response += gotoCommand(player, map, filteredCommand);
+        }
+        else if (filteredCommand.startsWith("get")) {
+            response += getCommand(player, map, filteredCommand);
+        }
+        else if (filteredCommand.startsWith("drop")) {
+            response += dropCommand(player, map, filteredCommand);
+        }
+        else if (filteredCommand.startsWith("reset")) {
+            response += resetCommand(player, map, filteredCommand, p);
         }
 
         Boolean actionValid = false;
@@ -397,27 +371,14 @@ public final class GameServer {
                 break;
             }
         }
-      
-      
+    
         if (actionValid == false){
             response += "There is no action " + filteredCommand + "\n";
-            response += lookCommand(player, map, filteredCommand);
         }
-        else if (filteredCommand.startsWith("inv")) {
-            response += invCommand(player, map, filteredCommand);
-        }
-        else if (filteredCommand.startsWith("goto")) {
-            response += gotoCommand(player, map, filteredCommand);
-        }
-        else if (filteredCommand.startsWith("get")) {
-            response += getCommand(player, map, filteredCommand);
-        }
-        else if (filteredCommand.startsWith("drop")) {
-            response += dropCommand(player, map, filteredCommand);
-        }
-        else if (filteredCommand.startsWith("reset")) {
-            response += resetCommand(player, map, filteredCommand, p);
-        }
+
+
+
+        
 
         return response;
     }

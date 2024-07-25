@@ -23,4 +23,16 @@ public class Player {
     }
 
     public int getLocation() { return location; }
+
+    public void setLocation(int location) {
+        this.location = location;
+    }
+
+    public void addArtefactToInventory(Artefact artefact) {
+        this.inventory.add(artefact);
+    }
+
+    public void removeArtefactFromInventory(Artefact artefact) {
+        this.inventory.remove(artefact);
+    }
 }

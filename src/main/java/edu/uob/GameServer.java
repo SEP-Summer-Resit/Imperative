@@ -48,6 +48,9 @@ public final class GameServer {
     public GameServer() {
     }
 
+    // Returns an integer identifying where in the players list the current player exists.
+    // Creates a new player and adds to the players list if the username hasn't been previously used.
+    // Creates the corresponding map in the maps list for the given player if it doesn't already exist.
     public int findPlayer(String username) throws ParseException {
         int i;
         Player player;
@@ -77,6 +80,217 @@ public final class GameServer {
         return i;
     }
 
+    // Return a response to the 'look' command being sent by a player
+    public String lookCommand(Player player, ArrayList<Location> map, String command) {
+        Location currentLocation = map.get(player.getLocation());
+        String response = "";
+
+        response += "You are in " +
+                // Uncapitalize the first letter of description which comes in the middle of the sentence.
+                java.lang.Character.toLowerCase(currentLocation.getDescription().charAt(0)) +
+                currentLocation.getDescription().substring(1) + "\n";
+        // Characters
+        if(!currentLocation.getCharacters().isEmpty()) {
+            response += "The following characters are here:\n";
+            for (int i = 0; i < currentLocation.getCharacters().size(); i++) {
+                response += "* " + currentLocation.getCharacters().get(i).getName() + "\n";
+            }
+        }
+        else {
+            response += "There are no characters here.\n";
+        }
+        // Artefacts
+        if(!currentLocation.getArtefacts().isEmpty()) {
+            response += "There are the following artefacts in this location: \n";
+            for (int i = 0; i < currentLocation.getArtefacts().size(); i++) {
+                response += "* " + currentLocation.getArtefacts().get(i).getName() + "\n";
+            }
+        }
+        else {
+            response += "There are no artefacts in this location\n";
+        }
+        // Furniture
+        if(!currentLocation.getFurniture().isEmpty()) {
+            response += "In the " + currentLocation.getName() + " there are:\n";
+            for (int i = 0; i < currentLocation.getFurniture().size(); i++) {
+                response += "* " + currentLocation.getFurniture().get(i).getName() + "\n";
+            }
+        }
+        // Paths Out
+        if(!currentLocation.getPathsOut().isEmpty()) {
+            response += "There are paths to the following locations: \n";
+            for (int i = 0; i < currentLocation.getPathsOut().size(); i++) {
+                response += "* " + currentLocation.getPathsOut().get(i).getDestination() + "\n";
+            }
+        }
+        else {
+            response += "There are no paths from here\n";
+        }
+
+        return response;
+    }
+
+    // Return a response to the 'inv' command being sent by a player
+    public String invCommand(Player player, ArrayList<Location> map, String command) {
+        String response = "";
+
+        if (!player.getInventory().isEmpty()) {
+            response += "You have the following items in your inventory:\n";
+            for (int i = 0; i < player.getInventory().size(); i++) {
+                response += "* " + player.getInventory().get(i).getName() + "\n";
+            }
+        }
+        else {
+            response += "You have no items in your inventory\n";
+        }
+        return response;
+    }
+
+    // Move player to a new location if the location provided is valid
+    // Return a response to the 'goto' command being sent
+    public String gotoCommand(Player player, ArrayList<Location> map, String command) {
+        int newLocation = 0;
+        boolean moving = false;
+        String response = "";
+        String intendedLocation;
+        Location currentLocation = map.get(player.getLocation());
+
+        // Check that the command only contains 'goto' and 'location', two words exactly.
+        if(!command.trim().matches("^\\s*\\w+\\s+\\w+\\s*$")) {
+            response += "You must provide a valid location you wish to move to.\n";
+            return response;
+        }
+
+        // Get the intended location from the command.
+        intendedLocation = command.split(" ")[1].trim();
+
+        // Check for a matching location in the possible paths out of current location.
+        foundMatch:
+        // Search through the available paths for a match
+        for (int i = 0; i < currentLocation.getPathsOut().size(); i++) {
+            if (currentLocation.getPathsOut().get(i).getDestination().equals(intendedLocation)) {
+                // If a match is found, get the location within the 'maps' structure
+                for (newLocation = 0; newLocation < map.size(); newLocation++) {
+                    if(currentLocation.getPathsOut().get(i).getDestination().equals(map.get(newLocation).getName())) {
+                        moving = true;
+                        break foundMatch;
+                    }
+                }
+                // We should never reach this. TODO: Error state.
+                // If we reach this then the entities.dot file contains errors.
+                break;
+            }
+        }
+
+        if (!moving) {
+            response += "'" + intendedLocation + "' is not a location you can travel to.\n";
+        }
+        else {
+            // Move the player
+            player.setLocation(newLocation);
+            response += "You have moved to " + map.get(newLocation).getName() + "\n";
+        }
+
+        return response;
+    }
+
+    // Move artefact from location to inventory if it's available to take
+    // Return a response to the 'get' command being sent
+    public String getCommand(Player player, ArrayList<Location> map, String command) {
+        String response = "";
+        boolean artefactTaken = false;
+        String intendedArtefact;
+        Location currentLocation = map.get(player.getLocation());
+
+        // Check that the command only contains 'get' and 'artefact', two words exactly.
+        if(!command.trim().matches("^\\s*\\w+\\s+\\w+\\s*$")) {
+            response += "You must provide a valid artefact you wish to get.\n";
+            return response;
+        }
+
+        // Get the intended location from the command.
+        intendedArtefact = command.split(" ")[1].trim();
+
+        for (int i = 0; i < currentLocation.getArtefacts().size(); i++) {
+            Artefact artefact = currentLocation.getArtefacts().get(i);
+            if(artefact.getName().equals(intendedArtefact)) {
+                player.addArtefactToInventory(artefact);
+                currentLocation.removeArtefact(artefact);
+                response += "You now have '" + artefact.getName() + "' in your inventory\n";
+                artefactTaken = true;
+                break;
+            }
+        }
+
+        if(!artefactTaken) {
+            response += "'" + intendedArtefact + "' is not available to take.\n";
+        }
+
+        return response;
+    }
+
+    // Move artefact from inventory to the current location if artefact exists in inventory.
+    // Return a response to the 'drop' command being sent.
+    public String dropCommand(Player player, ArrayList<Location> map, String command) {
+        String response = "";
+        boolean artefactDropped = false;
+        String intendedArtefact;
+        Location currentLocation = map.get(player.getLocation());
+
+        // Check that the command only contains 'get' and 'artefact', two words exactly.
+        if(!command.trim().matches("^\\s*\\w+\\s+\\w+\\s*$")) {
+            response += "You must provide a valid artefact you wish to drop from your inventory.\n";
+            return response;
+        }
+
+        // Get the intended location from the command.
+        intendedArtefact = command.split(" ")[1].trim();
+
+        for (int i = 0; i < player.getInventory().size(); i++) {
+            Artefact artefact = player.getInventory().get(i);
+            if(artefact.getName().equals(intendedArtefact)) {
+                currentLocation.addArtefact(artefact);
+                player.removeArtefactFromInventory(artefact);
+                response += "You have dropped '" + artefact.getName() + "' from your inventory\n";
+                artefactDropped = true;
+                break;
+            }
+        }
+
+        if(!artefactDropped) {
+            response += "'" + intendedArtefact + "' is not in your inventory.\n";
+        }
+
+        return response;
+    }
+
+    // Reset game state for the given player.
+    // Return a response to the 'reset' command.
+    public String resetCommand(Player player, ArrayList<Location> map, String command, int p) throws ParseException {
+        String response = "";
+        ArrayList<Location> locations;
+        String username = player.getName();
+
+        // Check that the command is precisely 'reset'
+        if(!command.trim().matches("reset")) {
+            response += "To reset the game please simply type 'reset'\n";
+            return response;
+        }
+
+        System.out.println("Resetting player: " + username);
+
+        // Reset the current player
+        players.set(p, new Player(username, new ArrayList<>()));
+
+        // Reset the current player's map
+        locations = readEntityFile("entities.dot");
+        maps.set(p, locations);
+
+        response += "Game reset.\n";
+        return response;
+    }
+
+    // Handle an incoming command from a player
     public String handleCommand(String incomming) throws ParseException {
         int p;
         Player player;
@@ -94,44 +308,24 @@ public final class GameServer {
         currentLocation = map.get(player.getLocation());
 
         if (filteredCommand.startsWith("look")) {
-            response += "You are in " + currentLocation.getDescription() + "\n";
-            if(!currentLocation.getArtefacts().isEmpty()) {
-                response += "There are the following artefacts in this location: \n";
-                for (int i = 0; i < currentLocation.getArtefacts().size(); i++) {
-                    response += "* " + currentLocation.getArtefacts().get(i).getName() + "\n";
-                }
-            }
-            else {
-                response += "There are no artefacts in this location\n";
-            }
-            if(!currentLocation.getFurniture().isEmpty()) {
-                response += "In the " + currentLocation.getName() + " there are:\n";
-                for (int i = 0; i < currentLocation.getFurniture().size(); i++) {
-                    response += "* " + currentLocation.getFurniture().get(i).getName() + "\n";
-                }
-            }
-            if(!currentLocation.getPathsOut().isEmpty()) {
-                response += "There are paths to the following locations: \n";
-                for (int i = 0; i < currentLocation.getPathsOut().size(); i++) {
-                    response += "* " + currentLocation.getPathsOut().get(i).getDestination() + "\n";
-                }
-            }
-            else {
-                response += "There are no paths from here\n";
-            }
+            response += lookCommand(player, map, filteredCommand);
+        }
+        else if (filteredCommand.startsWith("inv")) {
+            response += invCommand(player, map, filteredCommand);
+        }
+        else if (filteredCommand.startsWith("goto")) {
+            response += gotoCommand(player, map, filteredCommand);
+        }
+        else if (filteredCommand.startsWith("get")) {
+            response += getCommand(player, map, filteredCommand);
+        }
+        else if (filteredCommand.startsWith("drop")) {
+            response += dropCommand(player, map, filteredCommand);
+        }
+        else if (filteredCommand.startsWith("reset")) {
+            response += resetCommand(player, map, filteredCommand, p);
         }
 
-        if (filteredCommand.startsWith("inv")) {
-            if (!player.getInventory().isEmpty()) {
-                response += "You have the following items in your inventory:\n";
-                for (int i = 0; i < player.getInventory().size(); i++) {
-                    response += "* " + player.getInventory().get(i).getName() + "\n";
-                }
-            }
-            else {
-                response += "You have no items in your inventory\n";
-            }
-        }
         return response;
     }
 

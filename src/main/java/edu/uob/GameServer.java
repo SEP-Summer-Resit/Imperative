@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-import java.util.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -214,117 +214,109 @@ public final class GameServer {
   
     public ArrayList<Action> loadActionsFile(String entityFileName) throws ParseException {
         ArrayList<Action> actions = new ArrayList<>();
+        DocumentBuilderFactory factory;
+        DocumentBuilder builder;
+        factory = DocumentBuilderFactory.newInstance();
+        Document document = null;
 
-DocumentBuilderFactory factory;
-DocumentBuilder builder;
-factory = DocumentBuilderFactory.newInstance();
-Document document = null;
-
-try {
-    builder = factory.newDocumentBuilder();
-    String path = "config" + File.separator + entityFileName;
-    document = builder.parse(path);
-} catch (ParserConfigurationException | IOException | SAXException e) {
-    System.err.println("Exception: " + e.getMessage());
-}
-
-if (document == null) {
-    throw new IllegalStateException("Document is null");
-}
-Element root = document.getDocumentElement();
-NodeList actionNodes = root.getChildNodes();
-
-for (int i = 0; i < actionNodes.getLength(); i++) {
-    org.w3c.dom.Node currActionNode = actionNodes.item(i);
-    if (currActionNode.getNodeType() != org.w3c.dom.Node.ELEMENT_NODE) {
-        continue;
-    }
-    Element actionElement = (Element) currActionNode;
-    ArrayList<String> triggers = new ArrayList<>();
-    ArrayList<String> consumedEntities = new ArrayList<>();
-    ArrayList<String> producedEntities = new ArrayList<>();
-    ArrayList<String> subjects = new ArrayList<>();
-    String narration = "";
-
-    // Get the triggers element
-    NodeList triggersList = actionElement.getElementsByTagName("triggers");
-    if (triggersList.getLength() > 0) {
-        Element triggersElement = (Element) triggersList.item(0);
-        NodeList keywordList = triggersElement.getElementsByTagName("keyword");
-        for (int j = 0; j < keywordList.getLength(); j++) {
-            org.w3c.dom.Node keywordNode = keywordList.item(j);
-            if (keywordNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
-                Element keyword = (Element) keywordNode;
-                String triggerPhrase = keyword.getTextContent();
-                triggers.add(triggerPhrase);
-            } 
+        try {
+            builder = factory.newDocumentBuilder();
+            String path = "config" + File.separator + entityFileName;
+            document = builder.parse(path);
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            System.err.println("Exception: " + e.getMessage());
         }
-    }
 
-    // Get the subjects element
-    NodeList subjectsList = actionElement.getElementsByTagName("subjects");
-    if (subjectsList.getLength() > 0) {
-        Element subjectsElement = (Element) subjectsList.item(0);
-        NodeList entityList = subjectsElement.getElementsByTagName("entity");
-        for (int j = 0; j < entityList.getLength(); j++) {
-            org.w3c.dom.Node entityNode = entityList.item(j);
-            if (entityNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
-                Element entity = (Element) entityNode;
-                String subject = entity.getTextContent();
-                subjects.add(subject);
-            } 
+        if (document == null) {
+            throw new IllegalStateException("Document is null");
         }
-    }
+        Element root = document.getDocumentElement();
+        NodeList actionNodes = root.getChildNodes();
 
-    // Get the consumed element
-    NodeList consumedList = actionElement.getElementsByTagName("consumed");
-    if (consumedList.getLength() > 0) {
-        Element consumedElement = (Element) consumedList.item(0);
-        NodeList entityListConsumed = consumedElement.getElementsByTagName("entity");
-        for (int j = 0; j < entityListConsumed.getLength(); j++) {
-            org.w3c.dom.Node entityNode = entityListConsumed.item(j);
-            if (entityNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
-                Element entity = (Element) entityNode;
-                String consumedEntity = entity.getTextContent();
-                consumedEntities.add(consumedEntity);
-            } 
+        for (int i = 0; i < actionNodes.getLength(); i++) {
+            org.w3c.dom.Node currActionNode = actionNodes.item(i);
+            if (currActionNode.getNodeType() != org.w3c.dom.Node.ELEMENT_NODE) {
+                continue;
+            }
+            Element actionElement = (Element) currActionNode;
+            ArrayList<String> triggers = new ArrayList<>();
+            ArrayList<String> consumedEntities = new ArrayList<>();
+            ArrayList<String> producedEntities = new ArrayList<>();
+            ArrayList<String> subjects = new ArrayList<>();
+            String narration = "";
+
+            // Get the triggers element
+            NodeList triggersList = actionElement.getElementsByTagName("triggers");
+            if (triggersList.getLength() > 0) {
+                Element triggersElement = (Element) triggersList.item(0);
+                NodeList keywordList = triggersElement.getElementsByTagName("keyword");
+                for (int j = 0; j < keywordList.getLength(); j++) {
+                    org.w3c.dom.Node keywordNode = keywordList.item(j);
+                    if (keywordNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+                        Element keyword = (Element) keywordNode;
+                        String triggerPhrase = keyword.getTextContent();
+                        triggers.add(triggerPhrase);
+                    } 
+                }
+            }
+
+            // Get the subjects element
+            NodeList subjectsList = actionElement.getElementsByTagName("subjects");
+            if (subjectsList.getLength() > 0) {
+                Element subjectsElement = (Element) subjectsList.item(0);
+                NodeList entityList = subjectsElement.getElementsByTagName("entity");
+                for (int j = 0; j < entityList.getLength(); j++) {
+                    org.w3c.dom.Node entityNode = entityList.item(j);
+                    if (entityNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+                        Element entity = (Element) entityNode;
+                        String subject = entity.getTextContent();
+                        subjects.add(subject);
+                    } 
+                }
+            }
+
+            // Get the consumed element
+            NodeList consumedList = actionElement.getElementsByTagName("consumed");
+            if (consumedList.getLength() > 0) {
+                Element consumedElement = (Element) consumedList.item(0);
+                NodeList entityListConsumed = consumedElement.getElementsByTagName("entity");
+                for (int j = 0; j < entityListConsumed.getLength(); j++) {
+                    org.w3c.dom.Node entityNode = entityListConsumed.item(j);
+                    if (entityNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+                        Element entity = (Element) entityNode;
+                        String consumedEntity = entity.getTextContent();
+                        consumedEntities.add(consumedEntity);
+                    } 
+                }
+            }
+
+            // Get the produced element
+            NodeList producedList = actionElement.getElementsByTagName("produced");
+            if (producedList.getLength() > 0) {
+                Element producedElement = (Element) producedList.item(0);
+                NodeList entityListProduced = producedElement.getElementsByTagName("entity");
+                for (int j = 0; j < entityListProduced.getLength(); j++) {
+                    org.w3c.dom.Node entityNode = entityListProduced.item(j);
+                    if (entityNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+                        Element entity = (Element) entityNode;
+                        String producedEntity = entity.getTextContent();
+                        producedEntities.add(producedEntity);
+                    } 
+                }
+            }
+            // Get the narration element
+            NodeList narrationList = actionElement.getElementsByTagName("narration");
+            if (narrationList.getLength() > 0) {
+                Element narrationElement = (Element) narrationList.item(0);
+                narration = narrationElement.getTextContent();
+            }
+            Action action = new Action(triggers, subjects, consumedEntities, producedEntities, narration);
+            actions.add(action);
         }
+        return actions;
     }
 
-    // Get the produced element
-    NodeList producedList = actionElement.getElementsByTagName("produced");
-    if (producedList.getLength() > 0) {
-        Element producedElement = (Element) producedList.item(0);
-        NodeList entityListProduced = producedElement.getElementsByTagName("entity");
-        for (int j = 0; j < entityListProduced.getLength(); j++) {
-            org.w3c.dom.Node entityNode = entityListProduced.item(j);
-            if (entityNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
-                Element entity = (Element) entityNode;
-                String producedEntity = entity.getTextContent();
-                producedEntities.add(producedEntity);
-            } 
-        }
-    }
-    // Get the narration element
-    NodeList narrationList = actionElement.getElementsByTagName("narration");
-    if (narrationList.getLength() > 0) {
-        Element narrationElement = (Element) narrationList.item(0);
-        narration = narrationElement.getTextContent();
-    }
 
-    Action action = new Action(triggers, subjects, consumedEntities, producedEntities, narration);
-    actions.add(action);
-}
-return actions;
-}
-
-
-        
-    
-
-
-  
- 
     public String filterCommand(String command){
         //remove capital letters and punctuation
         String cleanCommand = command.toLowerCase().replaceAll("[^a-zA-Z0-9 ]", "");

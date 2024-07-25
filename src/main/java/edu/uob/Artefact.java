@@ -6,5 +6,10 @@ public class Artefact extends Entity{
         super(name, description);
     }
 
+    public boolean equals(Object obj){
+        Artefact checkArtefact = (Artefact) obj;
+        return checkArtefact.name.equals(name);
+    }
+
 }
 

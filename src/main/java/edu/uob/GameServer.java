@@ -37,8 +37,9 @@ import edu.uob.Character;
 
 public final class GameServer {
 
-    static ArrayList<Player> players = new ArrayList<>();
-    static ArrayList<ArrayList<Location>> maps = new ArrayList<>();
+    private ArrayList<Player> players = new ArrayList<>();
+    private ArrayList<ArrayList<Location>> maps = new ArrayList<>();
+    private ArrayList<Action> actions = new ArrayList<>();
 
     public static void main(String[] args) throws IOException, ParseException {
         GameServer server = new GameServer();
@@ -46,6 +47,11 @@ public final class GameServer {
     }
 
     public GameServer() {
+        try {
+            actions = loadActionsFile("actions.xml");
+        } catch (ParseException e) {
+            System.err.println("Error parsing actions file: " + e.getMessage());
+        }
     }
 
     // Returns an integer identifying where in the players list the current player exists.
@@ -325,6 +331,54 @@ public final class GameServer {
         else if (filteredCommand.startsWith("reset")) {
             response += resetCommand(player, map, filteredCommand, p);
         }
+
+        Boolean actionValid = false;
+        // Check through all the actions to see if the command matches any of the triggers
+        for (Action action : actions){
+            for (String trigger : action.getTriggers()){
+                if (filteredCommand.startsWith(trigger)){
+                    actionValid = true;
+                    // loop through the subjects of the action
+                    for (String subject : action.getSubjects()){
+                        // check if the subject is in the command
+                        if (filteredCommand.contains(subject)){
+                            // check if the subject is in the players inventory
+                            if (player.getInventory().contains(new Artefact(subject, ""))){
+                                continue;
+                            }
+                            // or if its on the ground
+                            else if (currentLocation.hasArtefact(subject)){
+                                continue;
+                            }
+                            // if not the command is not valid
+                            else {
+                                response += "You do not have the required item to perform this action\n";
+                                actionValid = false;
+                                break;
+                            }
+                        }
+                        else{
+                            response += "The" + subject + " is required to perform this action\n";
+                            actionValid = false;
+                            break;
+                        
+                        }
+                    }
+                }
+            }
+            if (actionValid == true) {
+                response += action.getNarration() + "\n";
+                break;
+            }
+        }
+    
+        if (actionValid == false){
+            response += "There is no action " + filteredCommand + "\n";
+        }
+
+
+
+        
 
         return response;
     }

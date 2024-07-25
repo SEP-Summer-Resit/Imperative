@@ -11,7 +11,13 @@ public class GameClient
             String playerName = args[0];
             BufferedReader commandLine = new BufferedReader(new InputStreamReader(System.in));
 
-            sendCommand(playerName, "repeat introduction");
+            try {
+                sendCommand(playerName, "repeat introduction");
+            } catch (IOException e){
+                System.out.println("\nConnection to GameServer unsuccessful.\n");
+                return;
+            }
+
             while(true) handleNextCommand(commandLine, playerName);
         }
     }

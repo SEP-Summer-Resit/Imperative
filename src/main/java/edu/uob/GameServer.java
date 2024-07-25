@@ -372,6 +372,43 @@ public final class GameServer {
         }
     }
 
+    /**
+     * Production Function: Removes an 'item' from the storeroom and adds it to 'destination'
+     *
+     * The item passed here can be an artefact, furniture, or character.
+     * If the item is an artefact, we expect that the destination will be the player's inventory
+     * If the item is furniture, we expect that the destination will be a location.getFurniture().
+     * If the item is a character, we expect that the destination will be a location.getCharacters().
+     *
+     * (This function may have unintended errors if you pass an invalid destination)
+     *
+     * @param p             Player index within the players list.
+     * @param item          Entity that will be removed from storeroom & added to the destination.
+     * @param destination   ArrayList<Entity> that will have the item added to it.
+     *                      eg: player's inventory
+     *                          location's furniture list
+     *                          location's character list
+     */
+    public void production(int p, Entity item, Object destination) {
+        Location storeroom = maps.get(p).get(5);
+        List<Entity> listDestination = (List<Entity>) destination;
+        listDestination.add(item);
+
+        if(item instanceof Artefact) {
+            storeroom.getArtefacts().remove(item);
+        }
+        else if (item instanceof Furniture) {
+            storeroom.getFurniture().remove(item);
+        }
+        else if(item instanceof Character) {
+            storeroom.getCharacters().remove(item);
+        }
+        else {
+            // We should never reach this. TODO: Error state
+            System.out.println("ERROR: " + item.getName() + " is not a valid type\n");
+        }
+    }
+
     public ArrayList<Location> readEntityFile(String entityFileName) throws ParseException {
         ArrayList<Location> locationsList = new ArrayList<>();
         Parser parser = new Parser();

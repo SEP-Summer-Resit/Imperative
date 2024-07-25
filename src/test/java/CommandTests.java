@@ -8,6 +8,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+
 final class CommandTests {
 
   private GameServer server;
@@ -21,6 +23,48 @@ final class CommandTests {
   @AfterEach
   void reset() throws ParseException {
     server.handleCommand("Daniel: reset");
+  }
+
+  @Test
+  void testConsumption() throws ParseException {
+    ArrayList<Location> map;
+    Player player;
+    int storeroomSizeBefore;
+    int storeroomSizeAfter;
+    int containerSizeBefore;
+    int containerSizeAfter;
+
+    // Initialise player
+    server.handleCommand("Daniel: look");
+    map = server.getMap(0);
+    player = server.getPlayer(0);
+    // Store sizes of storeroom and locations' furniture before running consumption
+    storeroomSizeBefore = map.get(5).getFurniture().size();
+    containerSizeBefore = map.get(0).getFurniture().size();
+    // Run the consumption. First element in furniture in first location should move to storeroom
+    server.consumption(0, map.get(0).getFurniture().get(0), map.get(0).getFurniture());
+    // Store sizes of storeroom and locations' furniture after running consumption
+    storeroomSizeAfter = map.get(5).getFurniture().size();
+    containerSizeAfter = map.get(0).getFurniture().size();
+
+    // Check that a single piece of furniture has moved from location to storeroom
+    assertEquals(storeroomSizeAfter, storeroomSizeBefore + 1);
+    assertEquals(containerSizeAfter, containerSizeBefore - 1);
+
+    // Add item to player's inventory
+    server.handleCommand("Daniel: get axe");
+    // Store sizes of storeroom's artefacts and player's inventory before running consumption
+    storeroomSizeBefore = map.get(5).getArtefacts().size();
+    containerSizeBefore = player.getInventory().size();
+    // Run the consumption. First element in player's inventory should move to storeroom
+    server.consumption(0, player.getInventory().get(0), player.getInventory());
+    // Store sizes of storeroom's artefacts and player's inventory after running consumption
+    storeroomSizeAfter = map.get(5).getArtefacts().size();
+    containerSizeAfter = player.getInventory().size();
+
+    // Check that a single piece of furniture has moved from location to storeroom
+    assertEquals(storeroomSizeAfter, storeroomSizeBefore + 1);
+    assertEquals(containerSizeAfter, containerSizeBefore - 1);
   }
 
   @Test

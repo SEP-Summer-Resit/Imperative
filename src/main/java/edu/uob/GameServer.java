@@ -45,6 +45,16 @@ public final class GameServer {
         server.blockingListenOn(8888);
     }
 
+    // Return map specific to player at index 'p' in players/maps lists.
+    public ArrayList<Location> getMap(int p) {
+        return maps.get(p);
+    }
+
+    // Return Player class for player p in players/maps lists.
+    public Player getPlayer(int p) {
+        return players.get(p);
+    }
+
     public GameServer() {
     }
 
@@ -327,6 +337,39 @@ public final class GameServer {
         }
 
         return response;
+    }
+
+    /**
+     * Consumption Function: Removes 'item' from 'container' and adds it to the storeroom.
+     *
+     * The item passed here can be either an 'Artefact', or a 'Furniture' type.
+     * If the item is an Artefact, the function expects that the container will be a player's inventory.
+     * If the item is a Furniture, the function expects that the container will be a location's list of furniture.
+     *
+     * @param p         Player index within the players list.
+     * @param item      Entity that will be removed from container & added to storeroom.
+     * @param container Containing List that will have 'item' removed from it.
+     */
+    public void consumption(int p, Entity item, List<?> container) {
+        Location storeroom = maps.get(p).get(5);
+        if(container.contains(item)) {
+            if(item instanceof Artefact) {
+                storeroom.getArtefacts().add((Artefact) item);
+            }
+            else if(item instanceof Furniture) {
+                storeroom.getFurniture().add((Furniture) item);
+            }
+            else {
+                // We should never reach this. TODO: Error state
+                System.out.println("ERROR: " + item.getName() + " is not a valid type");
+            }
+
+            container.remove(item);
+        }
+        else {
+            // We should never reach this. TODO: Error state
+            System.out.println("ERROR: " + item.getName() + " is not able to be consumed\n");
+        }
     }
 
     public ArrayList<Location> readEntityFile(String entityFileName) throws ParseException {

@@ -40,8 +40,8 @@ public final class GameServer {
 
     static ArrayList<Player> players = new ArrayList<>();
     static ArrayList<ArrayList<Location>> maps = new ArrayList<>();
-    List<String> validTriggers = new ArrayList<>(Arrays.asList("look", "inv", "goto", "get", "drop", "reset"));
-    List<String> validSubjects = new ArrayList<>(Arrays.asList());
+    Set<String> validTriggers = new HashSet<>(Arrays.asList("look", "inv", "goto", "get", "drop", "reset"));
+    Set<String> validSubjects = new HashSet<>(Arrays.asList());
     List<Action> actions;
     List<Location> locations;
 
@@ -56,8 +56,19 @@ public final class GameServer {
         this.actions = actions;
         this.locations = locations;
         for (Action action : actions){
-            this.validSubjects = action.getSubjects();
             this.validTriggers.addAll(action.getTriggers());
+        }
+        for (Location location: locations){
+            for (Artefact artefact: location.getArtefacts()){
+                this.validSubjects.add(artefact.getName());
+            }
+            for (Furniture furniture: location.getFurniture()){
+                this.validSubjects.add(furniture.getName());
+            }
+            for (Character character : location.getCharacters()){
+                this.validSubjects.add(character.getName());
+            }
+            this.validSubjects.add(location.getName());
         }
     }
 
@@ -94,7 +105,7 @@ public final class GameServer {
     }
 
     // Return a response to the 'look' command being sent by a player
-    public String lookCommand(Player player, ArrayList<Location> map, String command) {
+    public String lookCommand(Player player, ArrayList<Location> map) {
         Location currentLocation = map.get(player.getLocation());
         String response = "";
 
@@ -144,7 +155,7 @@ public final class GameServer {
     }
 
     // Return a response to the 'inv' command being sent by a player
-    public String invCommand(Player player, ArrayList<Location> map, String command) {
+    public String invCommand(Player player, ArrayList<Location> map) {
         String response = "";
 
         if (!player.getInventory().isEmpty()) {
@@ -161,27 +172,20 @@ public final class GameServer {
 
     // Move player to a new location if the location provided is valid
     // Return a response to the 'goto' command being sent
-    public String gotoCommand(Player player, ArrayList<Location> map, String command) {
+    public String gotoCommand(Player player, ArrayList<Location> map, Set<String> subjects) {
         int newLocation = 0;
         boolean moving = false;
         String response = "";
         String intendedLocation;
         Location currentLocation = map.get(player.getLocation());
 
-        // Check that the command only contains 'goto' and 'location', two words exactly.
-        if(!command.trim().matches("^\\s*\\w+\\s+\\w+\\s*$")) {
-            response += "You must provide a valid location you wish to move to.\n";
-            return response;
-        }
-
-        // Get the intended location from the command.
-        intendedLocation = command.split(" ")[1].trim();
 
         // Check for a matching location in the possible paths out of current location.
         foundMatch:
         // Search through the available paths for a match
         for (int i = 0; i < currentLocation.getPathsOut().size(); i++) {
-            if (currentLocation.getPathsOut().get(i).getDestination().equals(intendedLocation)) {
+        //check if subjects contains a valid destination
+            if (subjects.contains(currentLocation.getPathsOut().get(i).getDestination())) {
                 // If a match is found, get the location within the 'maps' structure
                 for (newLocation = 0; newLocation < map.size(); newLocation++) {
                     if(currentLocation.getPathsOut().get(i).getDestination().equals(map.get(newLocation).getName())) {
@@ -209,7 +213,7 @@ public final class GameServer {
 
     // Move artefact from location to inventory if it's available to take
     // Return a response to the 'get' command being sent
-    public String getCommand(Player player, ArrayList<Location> map, String command) {
+    public String getCommand(Player player, ArrayList<Location> map, Set<String> subjects) {
         String response = "";
         boolean artefactTaken = false;
         String intendedArtefact;
@@ -244,7 +248,7 @@ public final class GameServer {
 
     // Move artefact from inventory to the current location if artefact exists in inventory.
     // Return a response to the 'drop' command being sent.
-    public String dropCommand(Player player, ArrayList<Location> map, String command) {
+    public String dropCommand(Player player, ArrayList<Location> map, Set<String> subjects) {
         String response = "";
         boolean artefactDropped = false;
         String intendedArtefact;
@@ -279,16 +283,10 @@ public final class GameServer {
 
     // Reset game state for the given player.
     // Return a response to the 'reset' command.
-    public String resetCommand(Player player, ArrayList<Location> map, String command, int p) throws ParseException {
+    public String resetCommand(Player player, ArrayList<Location> map, int p) throws ParseException {
         String response = "";
         ArrayList<Location> locations;
         String username = player.getName();
-
-        // Check that the command is precisely 'reset'
-        if(!command.trim().matches("reset")) {
-            response += "To reset the game please simply type 'reset'\n";
-            return response;
-        }
 
         System.out.println("Resetting player: " + username);
 
@@ -326,22 +324,22 @@ public final class GameServer {
             response = "Please give one valid command.";
         }else{
             if (triggers.contains("look")) {
-                response += lookCommand(player, map, filteredCommand);
+                response += lookCommand(player, map);
             }
             else if (triggers.contains("inv")) {
-                response += invCommand(player, map, filteredCommand);
+                response += invCommand(player, map);
             }
             else if (triggers.contains("goto")) {
-                response += gotoCommand(player, map, filteredCommand);
+                response += gotoCommand(player, map, subjects);
             }
             else if (triggers.contains("get")) {
-                response += getCommand(player, map, filteredCommand);
+                response += getCommand(player, map, subjects);
             }
             else if (triggers.contains("drop")) {
-                response += dropCommand(player, map, filteredCommand);
+                response += dropCommand(player, map, subjects);
             }
             else if (triggers.contains("reset")) {
-                response += resetCommand(player, map, filteredCommand, p);
+                response += resetCommand(player, map, p);
             }
         }
         return response;

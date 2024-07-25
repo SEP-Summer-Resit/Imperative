@@ -306,6 +306,34 @@ public final class GameServer {
         return response;
     }
 
+    // Send the game introduction as a response to the client.
+    // Command expected is 'repeat introduction'
+    public String repeatIntroductionCommand(String command) {
+        if(!command.trim().matches("^\\s*\\w+\\s+\\w+\\s*$") ||
+                !(command.split(" ")[1].trim()).equals("introduction")) {
+            return "You can repeat the game introduction with the command 'repeat introduction'\n";
+        }
+
+        return "\n" +
+                "Welcome to the mysterious realm of Cajoedie,\n" +
+                "where you may explore and interact with the\n" +
+                "dense and prosperous world around you.\n" +
+                "\n" +
+                "You may find it useful to 'look' around and\n" +
+                "'get' used to your surroundings,\n" +
+                "but be careful not to 'drop' anything as you\n" +
+                "'goto' different areas of the realm.\n" +
+                "\n" +
+                "If you falter, you may wish to 'reset' and\n" +
+                "have another go with a fresh 'inv'entory\n" +
+                "\n" +
+                "                   ...I've said too much.\n" +
+                "\n" +
+                "     Now go\n" +
+                "\n" +
+                "And enjoy what Cajoedie has to offer.\n";
+    }
+
     // Handle an incoming command from a player
     public String handleCommand(String incomming) throws ParseException {
         int p;
@@ -340,6 +368,9 @@ public final class GameServer {
         }
         else if (filteredCommand.startsWith("reset")) {
             response += resetCommand(player, map, filteredCommand, p);
+        }
+        else if (filteredCommand.startsWith("repeat")) {
+            response += repeatIntroductionCommand(filteredCommand);
         }
 
         Boolean actionValid = false;

@@ -141,11 +141,16 @@ public final class GameServer {
                     for (String subject : action.getSubjects()){
                         System.out.println(subject);
                         if (player.getInventory().contains(new Artefact(subject, ""))){
-                            System.out.println("yippee");
+                            
                         }
                         else if (currentLocation.hasArtefact(subject)){
-                            System.out.println("yippee1");
+                            
                         }
+                        else {
+                            response += "You do not have the required item to perform this action\n";
+                            break;
+                        }
+                        response += action.getNarration() + "\n";
                     }
                 }
             }

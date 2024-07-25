@@ -134,28 +134,40 @@ public final class GameServer {
             }
         }
 
+        Boolean actionValid = false;
         // Check through all the actions to see if the command matches any of the triggers
         for (Action action : actions){
             for (String trigger : action.getTriggers()){
                 if (filteredCommand.startsWith(trigger)){
+                    actionValid = true;
+                    // loop through the subjects of the action
                     for (String subject : action.getSubjects()){
-                        System.out.println(subject);
-                        if (player.getInventory().contains(new Artefact(subject, ""))){
-                            
+                        // check if the subject is in the command
+                        if (filteredCommand.contains(subject)){
+                            // check if the subject is in the players inventory
+                            if (player.getInventory().contains(new Artefact(subject, ""))){
+                                continue;
+                            }
+                            // or if its on the ground
+                            else if (currentLocation.hasArtefact(subject)){
+                                continue;
+                            }
+                            // if not the command is not valid
+                            else {
+                                response += "You do not have the required item to perform this action\n";
+                                actionValid = false;
+                                break;
+                            }
                         }
-                        else if (currentLocation.hasArtefact(subject)){
-                            
-                        }
-                        else {
-                            response += "You do not have the required item to perform this action\n";
-                            break;
-                        }
-                        response += action.getNarration() + "\n";
                     }
                 }
             }
+            if (actionValid == true) {
+                response += action.getNarration() + "\n";
+                break;
+            }
         }
-
+        
 
 
         return response;

@@ -57,38 +57,38 @@ final class CommandTests {
 
   
 
-  // @Test
-  // void testGotoCommand() throws ParseException {
-  //   String response = server.handleCommand("Daniel: goto");
-  //   assertTrue(response.contains("You must provide a valid location you wish to move to"));
-  //   response = server.handleCommand("Daniel: goto asdf");
-  //   assertTrue(response.contains("You must provide a valid location you wish to move to"));
-  //   response = server.handleCommand("Daniel: goto forest");
+  @Test
+  void testGotoCommand() throws ParseException {
+    String response = server.handleCommand("Daniel: goto");
+    assertTrue(response.contains("You must provide a valid location you wish to move to"));
+    response = server.handleCommand("Daniel: goto asdf");
+    assertTrue(response.contains("You must provide a valid location you wish to move to"));
+    response = server.handleCommand("Daniel: goto forest");
   //   List<Set<String>> command = server.produceValidCommand(server.filterCommand("Daniel: goto forest"));
   //   for (Set<String> set : command) {
   //     for (String str : set) {
   //         System.out.println(str);
   //     }
   // }
-  //   System.out.println("this is the response: " + response);
-  //   assertTrue(response.contains("You have moved to forest"));
-  // }
+    System.out.println("this is the response: " + response);
+    assertTrue(response.contains("You have moved to forest"));
+  }
 
-  // @Test
-  // void testResetCommand() throws ParseException {
-  //   String response = server.handleCommand("Daniel: reset asdf");
-  //   assertTrue(response.contains("To reset the game please simply type 'reset'"));
-  //   // response = server.handleCommand("Daniel: goto forest");
-  //   // assertTrue(response.contains("You have moved to"));
-  //   response = server.handleCommand("Daniel: get key");
-  //   assertTrue(response.contains("You now have 'key' in your inventory"));
-  //   response = server.handleCommand("Daniel: reset");
-  //   assertTrue(response.contains("Game reset"));
-  //   response = server.handleCommand("Daniel: look");
-  //   assertTrue(response.contains("cabin"));
-  //   response = server.handleCommand("Daniel: inv");
-  //   assertTrue(response.contains("You have no items in your inventory"));
-  // }
+  @Test
+  void testResetCommand() throws ParseException {
+    String response = server.handleCommand("Daniel: reset asdf");
+    assertTrue(response.contains("Game reset"));
+    response = server.handleCommand("Daniel: goto forest");
+    assertTrue(response.contains("You have moved to"));
+    response = server.handleCommand("Daniel: get key");
+    assertTrue(response.contains("You now have 'key' in your inventory"));
+    response = server.handleCommand("Daniel: reset");
+    assertTrue(response.contains("Game reset"));
+    response = server.handleCommand("Daniel: look");
+    assertTrue(response.contains("cabin"));
+    response = server.handleCommand("Daniel: inv");
+    assertTrue(response.contains("You have no items in your inventory"));
+  }
 
   @Test
     void testCommandTokenisation() {

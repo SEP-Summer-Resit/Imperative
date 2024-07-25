@@ -181,29 +181,25 @@ public final class GameServer {
         boolean moving = false;
         String response = "";
         Location currentLocation = map.get(player.getLocation());
-        Set<Location> validLocation = new HashSet<>();
-
+        Set<String> validLocation = new HashSet<>();
+        System.out.println("current location: " + currentLocation.getName());
         // Search through the available paths for a match
         for (int i = 0; i < currentLocation.getPathsOut().size(); i++) {
         //check if subjects contains a valid destination
             if (subjects.contains(currentLocation.getPathsOut().get(i).getDestination())) {
                 // If a match is found, get the location within the 'maps' structure
-                for (newLocation = 0; newLocation < map.size(); newLocation++) {
-                    if(currentLocation.getPathsOut().get(i).getDestination().equals(map.get(newLocation).getName())) {
-                        validLocation.add(map.get(newLocation));
-                    }
-                }
-                // We should never reach this. TODO: Error state.
-                // If we reach this then the entities.dot file contains errors.
-                break;
+                validLocation.add(currentLocation.getPathsOut().get(i).getDestination());
             }
         }
         
-        
         if (validLocation.size() == 1){
             // Move the player
-            player.setLocation(newLocation);
-            response += "You have moved to " + map.get(newLocation).getName() + "\n";
+            for (newLocation = 0; newLocation < map.size()-1; newLocation++) {
+                if((validLocation.iterator().next()).equals(map.get(newLocation).getName())) {
+                    player.setLocation(newLocation);
+                }
+            }
+            response += "You have moved to " + validLocation.iterator().next() + "\n";
         }else if (validLocation.size() > 1){
             response += "Please choose one location to travel too";
         }

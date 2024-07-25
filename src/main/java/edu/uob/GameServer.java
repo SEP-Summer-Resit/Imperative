@@ -40,15 +40,25 @@ public final class GameServer {
 
     static ArrayList<Player> players = new ArrayList<>();
     static ArrayList<ArrayList<Location>> maps = new ArrayList<>();
-    ArrayList<String> validTriggers = new ArrayList<>(Arrays.asList("look", "inv", "goto", "get", "drop", "reset"));
-    ArrayList<String> validSubjects = new ArrayList<>(Arrays.asList());
+    List<String> validTriggers = new ArrayList<>(Arrays.asList("look", "inv", "goto", "get", "drop", "reset"));
+    List<String> validSubjects = new ArrayList<>(Arrays.asList());
+    List<Action> actions;
+    List<Location> locations;
 
     public static void main(String[] args) throws IOException, ParseException {
-        GameServer server = new GameServer();
+        ArrayList<Action> actions = loadActionsFile("actions.xml");
+        ArrayList<Location> locations = readEntityFile("actions.xml");
+        GameServer server = new GameServer(actions, locations);
         server.blockingListenOn(8888);
     }
 
-    public GameServer() {
+    public GameServer(ArrayList<Action> actions, ArrayList<Location> locations ) {
+        this.actions = actions;
+        this.locations = locations;
+        for (Action action : actions){
+            this.validSubjects = action.getSubjects();
+            this.validTriggers.addAll(action.getTriggers());
+        }
     }
 
     // Returns an integer identifying where in the players list the current player exists.
@@ -363,7 +373,7 @@ public final class GameServer {
 
     
 
-    public ArrayList<Location> readEntityFile(String entityFileName) throws ParseException {
+    private static ArrayList<Location> readEntityFile(String entityFileName) throws ParseException {
         ArrayList<Location> locationsList = new ArrayList<>();
         Parser parser = new Parser();
         String file = "config" + File.separator + entityFileName;
@@ -440,7 +450,7 @@ public final class GameServer {
   
   
   
-    public ArrayList<Action> loadActionsFile(String entityFileName) throws ParseException {
+    private static ArrayList<Action> loadActionsFile(String entityFileName) throws ParseException {
         ArrayList<Action> actions = new ArrayList<>();
         DocumentBuilderFactory factory;
         DocumentBuilder builder;

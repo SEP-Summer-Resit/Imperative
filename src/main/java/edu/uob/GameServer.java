@@ -340,6 +340,7 @@ public final class GameServer {
         Player player;
         ArrayList<Location> map;
         Location currentLocation;
+        boolean commandIssued = false;
 
         String username = incomming.split(":")[0].trim();
         String command = incomming.split(":")[1].trim();
@@ -353,24 +354,35 @@ public final class GameServer {
 
         if (filteredCommand.startsWith("look")) {
             response += lookCommand(player, map, filteredCommand);
+            commandIssued = true;
         }
         else if (filteredCommand.startsWith("inv")) {
             response += invCommand(player, map, filteredCommand);
+            commandIssued = true;
         }
         else if (filteredCommand.startsWith("goto")) {
             response += gotoCommand(player, map, filteredCommand);
+            commandIssued = true;
         }
         else if (filteredCommand.startsWith("get")) {
             response += getCommand(player, map, filteredCommand);
+            commandIssued = true;
         }
         else if (filteredCommand.startsWith("drop")) {
             response += dropCommand(player, map, filteredCommand);
+            commandIssued = true;
         }
         else if (filteredCommand.startsWith("reset")) {
             response += resetCommand(player, map, filteredCommand, p);
+            commandIssued = true;
         }
         else if (filteredCommand.startsWith("repeat")) {
             response += repeatIntroductionCommand(filteredCommand);
+            commandIssued = true;
+        }
+
+        if(commandIssued) {
+            return response;
         }
 
         Boolean actionValid = false;

@@ -33,7 +33,7 @@ As a **player**, I want to be able to play an engaging text adventure game that 
 
 ## Action class ##
 
-![Action-class-diagram png](https://github.com/user-attachments/assets/d5eaa0b8-c1bf-4072-83b5-5ed548c11dce)
+![action-class-diagram png](https://github.com/user-attachments/assets/bf2de5c4-91a6-482f-aed7-845915ad06f1)
 
 ## Sequence Diagram ## 
 ![Sequence Diagram](docs/sequence-diagram.png)

@@ -32,7 +32,7 @@ As a **player**, I want to be able to play an engaging text adventure game that 
 ![Class Diagram](docs/class-diagram.png)
 
 ## Sequence Diagram ## 
-![Sequence Diagram](docs/sequence-diagram.drawio)
+![Sequence Diagram](docs/sequence-diagram.png)
 
 
 ## Building the project

@@ -64,6 +64,30 @@ public final class GameServer {
         }
     }
 
+    // Helper function to return the index of the storeroom for the current player (p)
+    // Returns the index, or returns -1 on error
+    public int getStoreroomIndex(int p) {
+        for(int i = 0; i < maps.get(p).size(); i++) {
+            if(maps.get(p).get(i).getName().equals("storeroom")) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    // Helper function to return Location of storeroom for current player (p)
+    // Returns the Location object, or null on error.
+    public Location getStoreroomLocation(int p) {
+        int index = getStoreroomIndex(p);
+
+        if(index < 0) {
+            return null;
+        }
+
+        return maps.get(p).get(index);
+    }
+
     // Returns an integer identifying where in the players list the current player exists.
     // Creates a new player and adds to the players list if the username hasn't been previously used.
     // Creates the corresponding map in the maps list for the given player if it doesn't already exist.

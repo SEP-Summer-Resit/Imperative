@@ -120,6 +120,7 @@ public final class GameServer {
             else {
                 response += "There are no paths from here\n";
             }
+            return response;
         }
 
         if (filteredCommand.startsWith("inv")) {
@@ -132,6 +133,7 @@ public final class GameServer {
             else {
                 response += "You have no items in your inventory\n";
             }
+            return response;
         }
 
         Boolean actionValid = false;
@@ -159,6 +161,12 @@ public final class GameServer {
                                 break;
                             }
                         }
+                        else{
+                            response += "The" + subject + " is required to perform this action\n";
+                            actionValid = false;
+                            break;
+                        
+                        }
                     }
                 }
             }
@@ -167,9 +175,9 @@ public final class GameServer {
                 break;
             }
         }
-        
-
-
+        if (actionValid == false){
+            response += "There is no action " + filteredCommand + "\n";
+        }
         return response;
     }
 

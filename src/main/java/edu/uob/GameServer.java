@@ -32,6 +32,7 @@ import com.alexmerz.graphviz.objects.Edge;
 import com.alexmerz.graphviz.objects.Graph;
 
 import edu.uob.Character;
+import sun.tools.serialver.resources.serialver;
 
 
 
@@ -39,6 +40,8 @@ public final class GameServer {
 
     static ArrayList<Player> players = new ArrayList<>();
     static ArrayList<ArrayList<Location>> maps = new ArrayList<>();
+    ArrayList<String> validTriggers = new ArrayList<>(Arrays.asList("look", "inv", "goto", "get", "drop", "reset"));
+    ArrayList<String> validSubjects = new ArrayList<>(Arrays.asList());
 
     public static void main(String[] args) throws IOException, ParseException {
         GameServer server = new GameServer();
@@ -299,35 +302,66 @@ public final class GameServer {
 
         String username = incomming.split(":")[0].trim();
         String command = incomming.split(":")[1].trim();
-        String filteredCommand = filterCommand(command);
         String response = "";
-
+        
+        List<Set<String>> filteredCommand = produceValidCommand(filterCommand(command));
+        Set<String> triggers = filteredCommand.get(0);
+        Set<String> subjects = filteredCommand.get(1);
         p = findPlayer(username);
         player = players.get(p);
         map = maps.get(p);
         currentLocation = map.get(player.getLocation());
 
-        if (filteredCommand.startsWith("look")) {
-            response += lookCommand(player, map, filteredCommand);
+        if ((triggers.size() > 1) || (triggers.size() < 1)){
+            response = "Please give one valid command.";
+        }else{
+            if (triggers.contains("look")) {
+                response += lookCommand(player, map, filteredCommand);
+            }
+            else if (triggers.contains("inv")) {
+                response += invCommand(player, map, filteredCommand);
+            }
+            else if (triggers.contains("goto")) {
+                response += gotoCommand(player, map, filteredCommand);
+            }
+            else if (triggers.contains("get")) {
+                response += getCommand(player, map, filteredCommand);
+            }
+            else if (triggers.contains("drop")) {
+                response += dropCommand(player, map, filteredCommand);
+            }
+            else if (triggers.contains("reset")) {
+                response += resetCommand(player, map, filteredCommand, p);
+            }
         }
-        else if (filteredCommand.startsWith("inv")) {
-            response += invCommand(player, map, filteredCommand);
-        }
-        else if (filteredCommand.startsWith("goto")) {
-            response += gotoCommand(player, map, filteredCommand);
-        }
-        else if (filteredCommand.startsWith("get")) {
-            response += getCommand(player, map, filteredCommand);
-        }
-        else if (filteredCommand.startsWith("drop")) {
-            response += dropCommand(player, map, filteredCommand);
-        }
-        else if (filteredCommand.startsWith("reset")) {
-            response += resetCommand(player, map, filteredCommand, p);
-        }
-
         return response;
     }
+
+    private List<Set<String>> produceValidCommand(Set<String> actualCommand){
+        Set<String> triggers = new HashSet<>();
+        Set<String> subjects = new HashSet<>();
+
+        // Categorize the commands
+        for (String command : actualCommand) {
+            if (validTriggers.contains(command)) {
+                triggers.add(command);
+            }
+            if (validSubjects.contains(command)) {
+                subjects.add(command);
+            }
+        }
+
+        // Create a set containing both sets
+        List<Set<String>> validCommand = new ArrayList<>();
+        validCommand.add(triggers);
+        validCommand.add(subjects);
+
+        return validCommand;
+    }
+
+     
+
+    
 
     public ArrayList<Location> readEntityFile(String entityFileName) throws ParseException {
         ArrayList<Location> locationsList = new ArrayList<>();
@@ -507,11 +541,15 @@ public final class GameServer {
             Action action = new Action(triggers, subjects, consumedEntities, producedEntities, narration);
             actions.add(action);
         }
+        for (Action action : actions){
+            validCommands.addAll(action.getTriggers());
+            validSubjects.addAll(action.getSubjects());
+        }
         return actions;
     }
 
 
-    public String filterCommand(String command){
+    public Set<String> filterCommand(String command){
         //remove capital letters and punctuation
         String cleanCommand = command.toLowerCase().replaceAll("[^a-zA-Z0-9 ]", "");
         //tokenise the command (split into seperate words)
@@ -525,16 +563,14 @@ public final class GameServer {
                 "few", "more", "most", "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just", "don", "should", "now"));
 
         //remove stop words
-        List<String> filteredTokens = new ArrayList<>();
+        Set<String> filteredTokens = new HashSet<>();
         for (String token : tokens) {
             if (!stopwords.contains(token)) {
                 filteredTokens.add(token);
             }
         }
 
-        //make a single string from filtered tokens
-        String filteredCommand = String.join(" ", filteredTokens);
-        return filteredCommand;
+        return filteredTokens;
     }
 
     // Networking method - you shouldn't need to chenge this method !

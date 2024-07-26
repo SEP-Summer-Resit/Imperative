@@ -10,7 +10,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+
 import com.alexmerz.graphviz.ParseException;
+
+import java.util.ArrayList;
+
 
 final class CommandTests {
 
@@ -26,6 +30,102 @@ final class CommandTests {
   @AfterEach
   void reset() throws ParseException {
     server.handleCommand("Daniel: reset");
+  }
+
+  @Test
+  void testConsumption() throws ParseException {
+    ArrayList<Location> map;
+    Player player;
+    int storeroomSizeBefore;
+    int storeroomSizeAfter;
+    int containerSizeBefore;
+    int containerSizeAfter;
+
+    // Initialise player
+    server.handleCommand("Daniel: look");
+    map = server.getMap(0);
+    player = server.getPlayer(0);
+    // Store sizes of storeroom and locations' furniture before running consumption
+    storeroomSizeBefore = map.get(5).getFurniture().size();
+    containerSizeBefore = map.get(0).getFurniture().size();
+    // Run the consumption. First element in furniture in first location should move to storeroom
+    server.consumption(0, map.get(0).getFurniture().get(0), map.get(0).getFurniture());
+    // Store sizes of storeroom and locations' furniture after running consumption
+    storeroomSizeAfter = map.get(5).getFurniture().size();
+    containerSizeAfter = map.get(0).getFurniture().size();
+
+    // Check that a single piece of furniture has moved from location to storeroom
+    assertEquals(storeroomSizeAfter, storeroomSizeBefore + 1);
+    assertEquals(containerSizeAfter, containerSizeBefore - 1);
+
+    // Add item to player's inventory
+    server.handleCommand("Daniel: get axe");
+    // Store sizes of storeroom's artefacts and player's inventory before running consumption
+    storeroomSizeBefore = map.get(5).getArtefacts().size();
+    containerSizeBefore = player.getInventory().size();
+    // Run the consumption. First element in player's inventory should move to storeroom
+    server.consumption(0, player.getInventory().get(0), player.getInventory());
+    // Store sizes of storeroom's artefacts and player's inventory after running consumption
+    storeroomSizeAfter = map.get(5).getArtefacts().size();
+    containerSizeAfter = player.getInventory().size();
+
+    // Check that a single piece of furniture has moved from location to storeroom
+    assertEquals(storeroomSizeAfter, storeroomSizeBefore + 1);
+    assertEquals(containerSizeAfter, containerSizeBefore - 1);
+  }
+
+  @Test
+  void testProduction() throws ParseException {
+    ArrayList<Location> map;
+    Player player;
+    int storeroomSizeBefore;
+    int storeroomSizeAfter;
+    int destinationSizeBefore;
+    int destinationSizeAfter;
+
+    // Initialise player & map
+    server.handleCommand("Daniel: look");
+    map = server.getMap(0);
+    player = server.getPlayer(0);
+
+    /* -------- Move furniture from storeroom to location -------- */
+    // Store sizes of storeroom and locations' furniture before running production
+    storeroomSizeBefore = map.get(5).getFurniture().size();
+    destinationSizeBefore = map.get(0).getFurniture().size();
+    // Run the production. First element in furniture in storeroom should move to location's furniture.
+    server.production(0, map.get(5).getFurniture().get(0), map.get(0).getFurniture());
+    // Store sizes of storeroom and locations' furniture after running production
+    storeroomSizeAfter = map.get(5).getFurniture().size();
+    destinationSizeAfter = map.get(0).getFurniture().size();
+    // Check that a single piece of furniture has moved from storeroom to location
+    assertEquals(storeroomSizeAfter, storeroomSizeBefore - 1);
+    assertEquals(destinationSizeAfter, destinationSizeBefore + 1);
+
+    /* -------- Move artefact from storeroom to inventory -------- */
+    // Store sizes of storeroom's artefacts and player's inventory before running production
+    storeroomSizeBefore = map.get(5).getArtefacts().size();
+    destinationSizeBefore = player.getInventory().size();
+    // Run the production. First element in player's inventory should move to storeroom
+    server.production(0, map.get(5).getArtefacts().get(0), player.getInventory());
+    // Store sizes of storeroom's artefacts and player's inventory after running production
+    storeroomSizeAfter = map.get(5).getArtefacts().size();
+    destinationSizeAfter = player.getInventory().size();
+    // Check that a single piece of furniture has moved from location to storeroom
+    assertEquals(storeroomSizeAfter, storeroomSizeBefore - 1);
+    assertEquals(destinationSizeAfter, destinationSizeBefore + 1);
+
+    /* -------- Move character from storeroom to location -------- */
+    // Store sizes of storeroom and location's characters before running production
+    storeroomSizeBefore = map.get(5).getCharacters().size();
+    destinationSizeBefore = map.get(0).getCharacters().size();
+    // Run the production. First element in characters in storeroom should move to location's characters.
+    server.production(0, map.get(5).getCharacters().get(0), map.get(0).getCharacters());
+    // Store sizes of storeroom and locations' characters after running production
+    storeroomSizeAfter = map.get(5).getCharacters().size();
+    destinationSizeAfter = map.get(0).getCharacters().size();
+    // Check that a single piece of characters has moved from storeroom to location
+    assertEquals(storeroomSizeAfter, storeroomSizeBefore - 1);
+    assertEquals(destinationSizeAfter, destinationSizeBefore + 1);
   }
 
   @Test

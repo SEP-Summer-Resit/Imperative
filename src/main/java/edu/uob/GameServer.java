@@ -37,9 +37,15 @@ import edu.uob.Character;
 
 public final class GameServer {
 
-    private ArrayList<Player> players = new ArrayList<>();
-    private ArrayList<ArrayList<Location>> maps = new ArrayList<>();
-    private ArrayList<Action> actions = new ArrayList<>();
+
+    static ArrayList<Player> players = new ArrayList<>();
+    static ArrayList<ArrayList<Location>> maps = new ArrayList<>();
+    static private ArrayList<Action> actions = new ArrayList<>();
+    public Set<String> validTriggers = new HashSet<>(Arrays.asList("look", "inv", "goto", "get", "drop", "reset"));
+    public Set<String> validSubjects = new HashSet<>(Arrays.asList());
+    
+    
+
 
     public static void main(String[] args) throws IOException, ParseException {
         GameServer server = new GameServer();
@@ -86,6 +92,7 @@ public final class GameServer {
         }
 
         return maps.get(p).get(index);
+
     }
 
     // Returns an integer identifying where in the players list the current player exists.
@@ -117,11 +124,24 @@ public final class GameServer {
         ArrayList<Location> locations = readEntityFile("entities.dot");
         maps.add(locations);
         System.out.println("Adding new player: " + username);
+
+        for (Location location: locations){
+            for (Artefact artefact: location.getArtefacts()){
+                this.validSubjects.add(artefact.getName());
+            }
+            for (Furniture furniture: location.getFurniture()){
+                this.validSubjects.add(furniture.getName());
+            }
+            for (Character character : location.getCharacters()){
+                this.validSubjects.add(character.getName());
+            }
+            this.validSubjects.add(location.getName());
+        }
         return i;
     }
 
     // Return a response to the 'look' command being sent by a player
-    public String lookCommand(Player player, ArrayList<Location> map, String command) {
+    public String lookCommand(Player player, ArrayList<Location> map) {
         Location currentLocation = map.get(player.getLocation());
         String response = "";
 
@@ -171,12 +191,12 @@ public final class GameServer {
     }
 
     // Return a response to the 'inv' command being sent by a player
-    public String invCommand(Player player, ArrayList<Location> map, String command) {
+    public String invCommand(Player player, ArrayList<Location> map) {
         String response = "";
 
         if (!player.getInventory().isEmpty()) {
             response += "You have the following items in your inventory:\n";
-            for (int i = 0; i < player.getInventory().size(); i++) {
+            for (int i = 0; i < player.getInventory().size() -1; i++) {
                 response += "* " + player.getInventory().get(i).getName() + "\n";
             }
         }
@@ -188,134 +208,112 @@ public final class GameServer {
 
     // Move player to a new location if the location provided is valid
     // Return a response to the 'goto' command being sent
-    public String gotoCommand(Player player, ArrayList<Location> map, String command) {
+    public String gotoCommand(Player player, ArrayList<Location> map, Set<String> subjects) {
         int newLocation = 0;
         boolean moving = false;
         String response = "";
-        String intendedLocation;
         Location currentLocation = map.get(player.getLocation());
-
-        // Check that the command only contains 'goto' and 'location', two words exactly.
-        if(!command.trim().matches("^\\s*\\w+\\s+\\w+\\s*$")) {
-            response += "You must provide a valid location you wish to move to.\n";
-            return response;
-        }
-
-        // Get the intended location from the command.
-        intendedLocation = command.split(" ")[1].trim();
-
-        // Check for a matching location in the possible paths out of current location.
-        foundMatch:
+        Set<String> validLocation = new HashSet<>();
+        System.out.println("current location: " + currentLocation.getName());
         // Search through the available paths for a match
         for (int i = 0; i < currentLocation.getPathsOut().size(); i++) {
-            if (currentLocation.getPathsOut().get(i).getDestination().equals(intendedLocation)) {
+        //check if subjects contains a valid destination
+            if (subjects.contains(currentLocation.getPathsOut().get(i).getDestination())) {
                 // If a match is found, get the location within the 'maps' structure
-                for (newLocation = 0; newLocation < map.size(); newLocation++) {
-                    if(currentLocation.getPathsOut().get(i).getDestination().equals(map.get(newLocation).getName())) {
-                        moving = true;
-                        break foundMatch;
-                    }
-                }
-                // We should never reach this. TODO: Error state.
-                // If we reach this then the entities.dot file contains errors.
-                break;
+                validLocation.add(currentLocation.getPathsOut().get(i).getDestination());
             }
         }
-
-        if (!moving) {
-            response += "'" + intendedLocation + "' is not a location you can travel to.\n";
-        }
-        else {
+        
+        if (validLocation.size() == 1){
             // Move the player
-            player.setLocation(newLocation);
-            response += "You have moved to " + map.get(newLocation).getName() + "\n";
+            for (newLocation = 0; newLocation < map.size()-1; newLocation++) {
+                if((validLocation.iterator().next()).equals(map.get(newLocation).getName())) {
+                    player.setLocation(newLocation);
+                }
+            }
+            response += "You have moved to " + validLocation.iterator().next() + "\n";
+        }else if (validLocation.size() > 1){
+            response += "Please choose one location to travel too";
         }
-
+       
+        if (!moving) {
+            response += "You must provide a valid location you wish to move to\n";
+        }
+    
         return response;
     }
 
     // Move artefact from location to inventory if it's available to take
     // Return a response to the 'get' command being sent
-    public String getCommand(Player player, ArrayList<Location> map, String command) {
+    public String getCommand(Player player, ArrayList<Location> map, Set<String> subjects) {
         String response = "";
         boolean artefactTaken = false;
-        String intendedArtefact;
         Location currentLocation = map.get(player.getLocation());
-
-        // Check that the command only contains 'get' and 'artefact', two words exactly.
-        if(!command.trim().matches("^\\s*\\w+\\s+\\w+\\s*$")) {
-            response += "You must provide a valid artefact you wish to get.\n";
-            return response;
-        }
-
-        // Get the intended location from the command.
-        intendedArtefact = command.split(" ")[1].trim();
-
+        Set<Artefact> validArtefact = new HashSet<>();
+        
+        //interate over artefacts in the area and see if they match artefacts in command
+        //add valid artefacts to a list
         for (int i = 0; i < currentLocation.getArtefacts().size(); i++) {
             Artefact artefact = currentLocation.getArtefacts().get(i);
-            if(artefact.getName().equals(intendedArtefact)) {
-                player.addArtefactToInventory(artefact);
-                currentLocation.removeArtefact(artefact);
-                response += "You now have '" + artefact.getName() + "' in your inventory\n";
-                artefactTaken = true;
-                break;
+            if(subjects.contains(artefact.getName())) {
+                validArtefact.add(artefact);
             }
         }
 
-        if(!artefactTaken) {
-            response += "'" + intendedArtefact + "' is not available to take.\n";
+        //if only one valid artefact listed then pick up else give warning to only pick up one
+        if (validArtefact.size() == 1){
+            Artefact artefact = validArtefact.iterator().next();
+            player.addArtefactToInventory(artefact);
+            currentLocation.removeArtefact(artefact);
+            response += "You now have '" + artefact.getName() + "' in your inventory\n";
+            artefactTaken = true;
+        }else if (validArtefact.size() > 1){
+            response += "You can only pick up one artefact at a time.";
         }
-
+        
+        if(!artefactTaken) {
+            response += "You must provide a valid item to pick up.";
+        }
         return response;
     }
 
     // Move artefact from inventory to the current location if artefact exists in inventory.
     // Return a response to the 'drop' command being sent.
-    public String dropCommand(Player player, ArrayList<Location> map, String command) {
+    public String dropCommand(Player player, ArrayList<Location> map, Set<String> subjects) {
         String response = "";
         boolean artefactDropped = false;
-        String intendedArtefact;
         Location currentLocation = map.get(player.getLocation());
-
-        // Check that the command only contains 'get' and 'artefact', two words exactly.
-        if(!command.trim().matches("^\\s*\\w+\\s+\\w+\\s*$")) {
-            response += "You must provide a valid artefact you wish to drop from your inventory.\n";
-            return response;
-        }
-
-        // Get the intended location from the command.
-        intendedArtefact = command.split(" ")[1].trim();
-
+        Set<Artefact> validArtefact = new HashSet<>();
+        
         for (int i = 0; i < player.getInventory().size(); i++) {
             Artefact artefact = player.getInventory().get(i);
-            if(artefact.getName().equals(intendedArtefact)) {
-                currentLocation.addArtefact(artefact);
-                player.removeArtefactFromInventory(artefact);
-                response += "You have dropped '" + artefact.getName() + "' from your inventory\n";
-                artefactDropped = true;
-                break;
+            if(subjects.contains(artefact.getName())) {
+                validArtefact.add(artefact);
             }
         }
 
-        if(!artefactDropped) {
-            response += "'" + intendedArtefact + "' is not in your inventory.\n";
+        if (validArtefact.size() == 1){
+            Artefact artefact = validArtefact.iterator().next();
+            currentLocation.addArtefact(artefact);
+            player.removeArtefactFromInventory(artefact);
+            response += "You have dropped '" + artefact.getName() + "' from your inventory\n";
+            artefactDropped = true;
+        }else if (validArtefact.size() > 1){
+            response += "Only drop one artefact at a time";
         }
-
+        
+        if(!artefactDropped) {
+            response += "Artefact is not in your inventory.\n";
+        }
         return response;
     }
 
     // Reset game state for the given player.
     // Return a response to the 'reset' command.
-    public String resetCommand(Player player, ArrayList<Location> map, String command, int p) throws ParseException {
+    public String resetCommand(Player player, ArrayList<Location> map, int p) throws ParseException {
         String response = "";
         ArrayList<Location> locations;
         String username = player.getName();
-
-        // Check that the command is precisely 'reset'
-        if(!command.trim().matches("reset")) {
-            response += "To reset the game please simply type 'reset'\n";
-            return response;
-        }
 
         System.out.println("Resetting player: " + username);
 
@@ -368,97 +366,119 @@ public final class GameServer {
 
         String username = incomming.split(":")[0].trim();
         String command = incomming.split(":")[1].trim();
-        String filteredCommand = filterCommand(command);
         String response = "";
-
+        
+        List<Set<String>> filteredCommand = produceValidCommand(filterCommand(command));
+        Set<String> triggers = filteredCommand.get(0);
+        Set<String> subjects = filteredCommand.get(1);
         p = findPlayer(username);
         player = players.get(p);
         map = maps.get(p);
         currentLocation = map.get(player.getLocation());
 
-        if (filteredCommand.startsWith("look")) {
-            response += lookCommand(player, map, filteredCommand);
-            commandIssued = true;
-        }
-        else if (filteredCommand.startsWith("inv")) {
-            response += invCommand(player, map, filteredCommand);
-            commandIssued = true;
-        }
-        else if (filteredCommand.startsWith("goto")) {
-            response += gotoCommand(player, map, filteredCommand);
-            commandIssued = true;
-        }
-        else if (filteredCommand.startsWith("get")) {
-            response += getCommand(player, map, filteredCommand);
-            commandIssued = true;
-        }
-        else if (filteredCommand.startsWith("drop")) {
-            response += dropCommand(player, map, filteredCommand);
-            commandIssued = true;
-        }
-        else if (filteredCommand.startsWith("reset")) {
-            response += resetCommand(player, map, filteredCommand, p);
-            commandIssued = true;
-        }
-        else if (filteredCommand.startsWith("repeat")) {
-            response += repeatIntroductionCommand(filteredCommand);
-            commandIssued = true;
+
+        if ((triggers.size() > 1) || (triggers.size() < 1)){
+            response = "Please give one valid command.";
+        }else{
+            if (triggers.contains("look")) {
+                response += lookCommand(player, map);
+            }
+            else if (triggers.contains("inv")) {
+                response += invCommand(player, map);
+            }
+            else if (triggers.contains("goto")) {
+                response += gotoCommand(player, map, subjects);
+            }
+            else if (triggers.contains("get")) {
+                response += getCommand(player, map, subjects);
+            }
+            else if (triggers.contains("drop")) {
+                response += dropCommand(player, map, subjects);
+            }
+            else if (triggers.contains("reset")) {
+                response += resetCommand(player, map, p);
+            }
         }
 
-        if(commandIssued) {
-            return response;
-        }
-
-        Boolean actionValid = false;
-        // Check through all the actions to see if the command matches any of the triggers
-        for (Action action : actions){
-            for (String trigger : action.getTriggers()){
-                if (filteredCommand.startsWith(trigger)){
-                    actionValid = true;
-                    // loop through the subjects of the action
-                    for (String subject : action.getSubjects()){
-                        // check if the subject is in the command
-                        if (filteredCommand.contains(subject)){
-                            // check if the subject is in the players inventory
-                            if (player.getInventory().contains(new Artefact(subject, ""))){
-                                continue;
-                            }
-                            // or if its on the ground
-                            else if (currentLocation.hasArtefact(subject)){
-                                continue;
-                            }
-                            // if not the command is not valid
-                            else {
-                                response += "You do not have the required item to perform this action\n";
-                                actionValid = false;
-                                break;
-                            }
-                        }
-                        else{
-                            response += "The" + subject + " is required to perform this action\n";
-                            actionValid = false;
-                            break;
+        // Boolean actionValid = false;
+        // // Check through all the actions to see if the command matches any of the triggers
+        // for (Action action : actions){
+        //     for (String trigger : action.getTriggers()){
+        //         if (filteredCommand.startsWith(trigger)){
+        //             actionValid = true;
+        //             // loop through the subjects of the action
+        //             for (String subject : action.getSubjects()){
+        //                 // check if the subject is in the command
+        //                 if (filteredCommand.contains(subject)){
+        //                     // check if the subject is in the players inventory
+        //                     if (player.getInventory().contains(new Artefact(subject, ""))){
+        //                         continue;
+        //                     }
+        //                     // or if its on the ground
+        //                     else if (currentLocation.hasArtefact(subject)){
+        //                         continue;
+        //                     }
+        //                     // if not the command is not valid
+        //                     else {
+        //                         response += "You do not have the required item to perform this action\n";
+        //                         actionValid = false;
+        //                         break;
+        //                     }
+        //                 }
+        //                 else{
+        //                     response += "The" + subject + " is required to perform this action\n";
+        //                     actionValid = false;
+        //                     break;
                         
-                        }
-                    }
-                }
-            }
-            if (actionValid == true) {
-                response += action.getNarration() + "\n";
-                break;
-            }
-        }
+        //                 }
+        //             }
+        //         }
+        //     }
+        //     if (actionValid == true) {
+        //         response += action.getNarration() + "\n";
+        //         break;
+        //     }
+        // }
     
-        if (actionValid == false){
-            response += "There is no action " + filteredCommand + "\n";
-        }
+        // if (actionValid == false){
+        //     response += "There is no action " + filteredCommand + "\n";
+        // }
 
 
 
         
-
         return response;
     }
+
+    public List<Set<String>> produceValidCommand(Set<String> actualCommand){
+        Set<String> triggers = new HashSet<>();
+        Set<String> subjects = new HashSet<>();
+
+        // Categorize the commands
+        for (String command : actualCommand) {
+            if (validTriggers.contains(command)) {
+                triggers.add(command);
+            }
+            if (validSubjects.contains(command)) {
+                subjects.add(command);
+            }
+        }
+
+        // Create a set containing both sets
+        List<Set<String>> validCommand = new ArrayList<>();
+        validCommand.add(triggers);
+        validCommand.add(subjects);
+
+        
+
+        return validCommand;
+    }
+
+     
+
+
+        
+
 
     /**
      * Consumption Function: Removes 'item' from 'container' and adds it to the storeroom.
@@ -530,7 +550,11 @@ public final class GameServer {
         }
     }
 
-    public ArrayList<Location> readEntityFile(String entityFileName) throws ParseException {
+    
+    
+
+    public static ArrayList<Location> readEntityFile(String entityFileName) throws ParseException {
+   
         ArrayList<Location> locationsList = new ArrayList<>();
         Parser parser = new Parser();
         String file = "config" + File.separator + entityFileName;
@@ -607,7 +631,7 @@ public final class GameServer {
   
   
   
-    public ArrayList<Action> loadActionsFile(String entityFileName) throws ParseException {
+    public static ArrayList<Action> loadActionsFile(String entityFileName) throws ParseException {
         ArrayList<Action> actions = new ArrayList<>();
         DocumentBuilderFactory factory;
         DocumentBuilder builder;
@@ -708,11 +732,12 @@ public final class GameServer {
             Action action = new Action(triggers, subjects, consumedEntities, producedEntities, narration);
             actions.add(action);
         }
+        
         return actions;
     }
 
 
-    public String filterCommand(String command){
+    public Set<String> filterCommand(String command){
         //remove capital letters and punctuation
         String cleanCommand = command.toLowerCase().replaceAll("[^a-zA-Z0-9 ]", "");
         //tokenise the command (split into seperate words)
@@ -726,16 +751,14 @@ public final class GameServer {
                 "few", "more", "most", "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just", "don", "should", "now"));
 
         //remove stop words
-        List<String> filteredTokens = new ArrayList<>();
+        Set<String> filteredTokens = new HashSet<>();
         for (String token : tokens) {
             if (!stopwords.contains(token)) {
                 filteredTokens.add(token);
             }
         }
 
-        //make a single string from filtered tokens
-        String filteredCommand = String.join(" ", filteredTokens);
-        return filteredCommand;
+        return filteredTokens;
     }
 
     // Networking method - you shouldn't need to chenge this method !

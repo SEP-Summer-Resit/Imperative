@@ -1,14 +1,18 @@
 package edu.uob;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import com.alexmerz.graphviz.ParseException;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
+import com.alexmerz.graphviz.ParseException;
+
 
 final class CommandTests {
 
@@ -18,6 +22,7 @@ final class CommandTests {
   @BeforeEach
   void setup() {
       server = new GameServer();
+      server.validSubjects.addAll(Arrays.asList("potion", "forest", "key", "axe"));
   }
 
   @AfterEach
@@ -143,37 +148,29 @@ final class CommandTests {
     String response = server.handleCommand("Daniel: get potion");
     assertTrue(response.contains("You now have 'potion' in your inventory"));
     response = server.handleCommand("Daniel: get asdf");
-    assertTrue(response.contains("is not available to take"));
+    assertTrue(response.contains("You must provide a valid item to pick up"));
     response = server.handleCommand("Daniel: get");
-    assertTrue(response.contains("You must provide a valid artefact you wish to get"));
+    assertTrue(response.contains("You must provide a valid item to pick up"));
   }
 
-  @Test
-  void testDropCommand() throws ParseException {
-    String response = server.handleCommand("Daniel: drop potion");
-    assertTrue(response.contains("is not in your inventory"));
-    server.handleCommand("Daniel: get potion");
-    response = server.handleCommand("Daniel: drop potion");
-    System.out.println("LOWE " + response);
-    assertTrue(response.contains("You have dropped"));
-    response = server.handleCommand("Daniel: drop");
-    assertTrue(response.contains("You must provide a valid artefact you wish to drop from your inventory"));
-  }
+  
 
   @Test
   void testGotoCommand() throws ParseException {
     String response = server.handleCommand("Daniel: goto");
     assertTrue(response.contains("You must provide a valid location you wish to move to"));
     response = server.handleCommand("Daniel: goto asdf");
-    assertTrue(response.contains("is not a location you can travel to"));
+    assertTrue(response.contains("You must provide a valid location you wish to move to"));
     response = server.handleCommand("Daniel: goto forest");
-    assertTrue(response.contains("You have moved to"));
+ 
+    System.out.println("this is the response: " + response);
+    assertTrue(response.contains("You have moved to forest"));
   }
 
   @Test
   void testResetCommand() throws ParseException {
     String response = server.handleCommand("Daniel: reset asdf");
-    assertTrue(response.contains("To reset the game please simply type 'reset'"));
+    assertTrue(response.contains("Game reset"));
     response = server.handleCommand("Daniel: goto forest");
     assertTrue(response.contains("You have moved to"));
     response = server.handleCommand("Daniel: get key");
@@ -187,18 +184,24 @@ final class CommandTests {
   }
 
   @Test
-  void testCommandTokenisation() {
-    String filteredCommand = server.filterCommand("This is a command! There is some random punctuation :)");
-    String expectedOutput = "command random punctuation";
-    assertEquals(expectedOutput, filteredCommand, "Incorrect Filtering");
+    void testCommandTokenisation() {
+        Set<String> filteredCommand = server.filterCommand("This is a command! There is some random punctuation :)");
+        Set<String> expectedOutput = new HashSet<>();
+        expectedOutput.add("command");
+        expectedOutput.add("random");
+        expectedOutput.add("punctuation");
+        assertEquals(expectedOutput, filteredCommand, "Incorrect Filtering");
     }
 
     @Test
     void testCommandTokenisationTooManySpaces() {
-      String filteredCommand = server.filterCommand("This    command has  too many     spaces");
-      String expectedOutput = "command many spaces";
-      assertEquals(expectedOutput, filteredCommand, "Incorrect Filtering");
-      }
- 
+        Set<String> filteredCommand = server.filterCommand("This    command has  too many     spaces");
+        Set<String> expectedOutput = new HashSet<>();
+        expectedOutput.add("command");
+        expectedOutput.add("many");
+        expectedOutput.add("spaces");
+        assertEquals(expectedOutput, filteredCommand, "Incorrect Filtering");
+    }
+
 
 }

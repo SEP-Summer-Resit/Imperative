@@ -22,7 +22,7 @@ final class CommandTests {
   @BeforeEach
   void setup() {
       server = new GameServer();
-      server.validSubjects.addAll(Arrays.asList("potion", "forest", "key"));
+      server.validSubjects.addAll(Arrays.asList("potion", "forest", "key", "axe"));
   }
 
   @AfterEach

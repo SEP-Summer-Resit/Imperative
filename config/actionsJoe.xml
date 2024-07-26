@@ -83,6 +83,25 @@
         </produced>
         <narration>You row the raft using the oar to an island across the river</narration>
     </action>
+
+    <action>
+        <triggers>
+            <keyword>use</keyword>
+            <keyword>craft</keyword>
+            <keyword>build</keyword>
+            <keyword>make</keyword>
+        </triggers>
+        <subjects>
+            <entity>fiber</entity>
+        </subjects>
+        <consumed>
+            <entity>fiber</entity>
+        </consumed>
+        <produced>
+            <entity>rope</entity>
+        </produced>
+        <narration>You craft the fiber from the plant into a rope</narration>
+    </action>
     
 
 </actions>

@@ -1,0 +1,47 @@
+digraph layout
+
+graph [ranksep="1" nodesep="1"];
+    node [shape = "rect"];
+
+    subgraph locations {
+         subgraph cluster001 {
+            node [shape = "none"];
+            clearing [description = "A clearing in the woods, there are trees all around"];
+            subgraph artefacts {
+                node [shape = "diamond"];
+                stick [description = "Sticks from a nearby tree"];
+                key [description = "A rusty old key];
+            }
+            subgraph furniture {
+                node [shape = "hexagon"];
+                tree [description = "Pretty self-explanatory"];
+            }
+        }
+
+
+        subgraph cluster002 {
+            node [shape = "none"];
+            riverbank [description = "The bank of a river, the water is too deep to cross and you didnt take swimming lessons as a child"];
+            subgraph artefacts {
+                node [shape = "diamond"];
+                fiber [description = "A sturdy looking plant"];
+                stone [description = "A sharp, flat stone"];
+            }
+            subgraph furniture {
+                node [shape = "hexagon"];
+                river [description = "Its a river"]
+            }
+        }
+
+
+
+    }
+
+    subgraph paths {
+        clearing -> riverbank;
+        riverbank -> river;
+        cellar -> cabin;
+        forest -> riverbank
+        riverbank -> forest
+        clearing -> riverbank
+    }

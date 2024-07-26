@@ -358,6 +358,173 @@ public final class GameServer {
                 "And enjoy what Cajoedie has to offer.\n";
     }
 
+    // Check if an intended action is valid
+    public ArrayList<Action> selectAction(String command) {
+        ArrayList<Action> selectedActions = new ArrayList<>();
+        boolean actionSelected = false;
+
+        for (Action action : actions) {
+            boolean valid = false;
+            for (String trigger : action.getTriggers()) {
+                if (command.startsWith(trigger)) {
+                    valid = true;
+                    break;
+                }
+            }
+
+            if (!valid) {
+                continue;
+            }
+
+            valid = false;
+            for (String subject : action.getSubjects()) {
+                if (command.contains(subject)) {
+                    valid = true;
+                    break;
+                }
+            }
+
+            if(!valid) {
+                continue;
+            }
+
+            selectedActions.add(action);
+            actionSelected = true;
+        }
+
+        if(!actionSelected) {
+            System.out.println("'" + command + "' is not a valid action\n");
+            return null;
+        }
+
+        return selectedActions;
+    }
+
+    // Check if a valid action is allowed in current scenario
+    public String checkActionIsAllowed(int p, Action action) {
+        String response = "";
+        Player player = players.get(p);
+        ArrayList<Location> map = maps.get(p);
+        Location storeroom = getStoreroomLocation(p);
+        List<Artefact> inventory = player.getInventory();
+        Location currentLocation = map.get(player.getLocation());
+
+        if(storeroom == null) {
+            System.out.println("ERROR: Storeroom is null\n");
+            return response;
+        }
+
+        int totalSubjects = action.getSubjects().size();
+        int countedSubjects = 0;
+        for (int i = 0; i < totalSubjects; i++) {
+            String subject = action.getSubjects().get(i);
+            for (Artefact artefact : inventory) {
+                if(artefact.getName().equals(subject)) {
+                    System.out.println(subject + " exists!");
+                    countedSubjects++;
+                }
+            }
+            for(Furniture furniture : currentLocation.getFurniture()) {
+                if(furniture.getName().equals(subject)) {
+                    System.out.println(subject + " exists!");
+                    countedSubjects++;
+                }
+            }
+            for(Character character : currentLocation.getCharacters()) {
+                if(character.getName().equals(subject)) {
+                    System.out.println(subject + " exists!");
+                    countedSubjects++;
+                }
+            }
+        }
+
+        if(countedSubjects != totalSubjects) {
+            response += "You cannot do that action right now.\n";
+            return response;
+        }
+
+        int totalConsumables = action.getConsumed().size();
+        int countedConsumables = 0;
+        for ( int i = 0; i < totalConsumables; i++ ) {
+            String consumable = action.getConsumed().get(i);
+            for (Artefact artefact : inventory) {
+                if(artefact.getName().equals(consumable)) {
+                    System.out.println(consumable + "found in inventory!");
+                    countedConsumables++;
+                }
+            }
+            for(Furniture furniture : currentLocation.getFurniture()) {
+                if(furniture.getName().equals(consumable)) {
+                    System.out.println(consumable + "Found in the room!");
+                    countedConsumables++;
+                }
+            }
+        }
+
+        if(countedConsumables != totalConsumables) {
+            for (int i = 0; i < totalConsumables; i++) {
+                String consumable = action.getConsumed().get(i);
+                if(consumable.equals("health")) {
+                    System.out.println("health should be removed!");
+                    countedConsumables++;
+                }
+            }
+            if(countedConsumables != totalConsumables) {
+                response += "You cannot do that action right now.\n";
+                return response;
+            }
+        }
+
+        int totalProducables = action.getProduced().size();
+        int countedProducables = 0;
+        for ( int i = 0; i < totalProducables; i++ ) {
+            String producable = action.getProduced().get(i);
+            for (Artefact artefact : storeroom.getArtefacts()) {
+                if(artefact.getName().equals(producable)) {
+                    System.out.println(producable + "should be produced");
+                    countedProducables++;
+                }
+            }
+            for(Furniture furniture : storeroom.getFurniture()) {
+                if(furniture.getName().equals(producable)) {
+                    System.out.println(producable + "should be produced");
+                    countedProducables++;
+                }
+            }
+            for(Character character : storeroom.getCharacters()) {
+                if(character.getName().equals(producable)) {
+                    System.out.println(producable + "should be produced");
+                    countedProducables++;
+                }
+            }
+        }
+
+        if(countedProducables != totalProducables) {
+            for (int i = 0; i < totalProducables; i++) {
+                String producable = action.getProduced().get(i);
+                if(producable.equals("health")) {
+                    System.out.println(producable + "should be added");
+                    countedProducables++;
+                }
+                else {
+                    for (Location location : map) {
+                        if(location.getName().equals(producable)) {
+                            System.out.println(producable + "path should appear");
+                            countedProducables++;
+                        }
+                    }
+                }
+            }
+            if(countedProducables != totalProducables) {
+                response += "You cannot do that action right now.\n";
+                return response;
+            }
+        }
+
+        response += "\n" + action.getNarration() + "\n";
+        return response;
+    }
+
     // Handle an incoming command from a player
     public String handleCommand(String incomming) throws ParseException {
         int p;
@@ -409,53 +576,28 @@ public final class GameServer {
             return response;
         }
 
-        Boolean actionValid = false;
-        // Check through all the actions to see if the command matches any of the triggers
-        for (Action action : actions){
-            for (String trigger : action.getTriggers()){
-                if (filteredCommand.startsWith(trigger)){
-                    actionValid = true;
-                    // loop through the subjects of the action
-                    for (String subject : action.getSubjects()){
-                        // check if the subject is in the command
-                        if (filteredCommand.contains(subject)){
-                            // check if the subject is in the players inventory
-                            if (player.getInventory().contains(new Artefact(subject, ""))){
-                                continue;
-                            }
-                            // or if its on the ground
-                            else if (currentLocation.hasArtefact(subject)){
-                                continue;
-                            }
-                            // if not the command is not valid
-                            else {
-                                response += "You do not have the required item to perform this action\n";
-                                actionValid = false;
-                                break;
-                            }
-                        }
-                        else{
-                            response += "The" + subject + " is required to perform this action\n";
-                            actionValid = false;
-                            break;
-                        
-                        }
-                    }
-                }
-            }
-            if (actionValid == true) {
-                response += action.getNarration() + "\n";
-                break;
-            }
-        }
-    
-        if (actionValid == false){
-            response += "There is no action " + filteredCommand + "\n";
+        // Get list of valid actions that match filteredCommand
+        ArrayList<Action> selectedActions = selectAction(filteredCommand);
+
+        // Check if any valid actions were matched
+        if(selectedActions == null) {
+            return "'" + filteredCommand + "' is not a valid action\n";
         }
 
+        // If multiple valid action matches were found, do nothing
+        if(selectedActions.size() > 1) {
+            response += "Multiple actions match your request.\n" +
+                    "Try to be more specific.\n";
+            return response;
+        }
 
+        // Ensure we are working with one action
+        Action selectedAction = selectedActions.get(0);
 
-        
+        // Check whether valid action is allowed in current scenario
+        response += checkActionIsAllowed(p, selectedAction);
+
+        // TODO: Call consumption & production for required elements.
 
         return response;
     }

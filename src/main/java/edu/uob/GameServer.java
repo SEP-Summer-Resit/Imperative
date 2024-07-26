@@ -32,7 +32,6 @@ import com.alexmerz.graphviz.objects.Edge;
 import com.alexmerz.graphviz.objects.Graph;
 
 import edu.uob.Character;
-//import sun.tools.serialver.resources.serialver;
 
 
 
@@ -40,40 +39,24 @@ public final class GameServer {
 
     static ArrayList<Player> players = new ArrayList<>();
     static ArrayList<ArrayList<Location>> maps = new ArrayList<>();
+    static private ArrayList<Action> actions = new ArrayList<>();
     public Set<String> validTriggers = new HashSet<>(Arrays.asList("look", "inv", "goto", "get", "drop", "reset"));
     public Set<String> validSubjects = new HashSet<>(Arrays.asList());
-    List<Action> actions;
+    
     
 
     public static void main(String[] args) throws IOException, ParseException {
-        ArrayList<Action> actions = loadActionsFile("actions.xml");
-        ArrayList<Location> locations = readEntityFile("actions.xml");
-        GameServer server = new GameServer(actions, locations);
+        GameServer server = new GameServer();
         server.blockingListenOn(8888);
     }
 
-    public GameServer(){
-    }
-    public GameServer(ArrayList<Action> actions, ArrayList<Location> locations ) {
-        this.actions = actions;
-        for (int i = 0; i < locations.size()-1; i++) {
-            maps.add(new ArrayList<>(locations)); 
+    public GameServer() {
+        try {
+            actions = loadActionsFile("actions.xml");
+        } catch (ParseException e) {
+            System.err.println("Error parsing actions file: " + e.getMessage());
         }
-        for (Action action : actions){
-            this.validTriggers.addAll(action.getTriggers());
-        }
-        for (Location location: locations){
-            for (Artefact artefact: location.getArtefacts()){
-                this.validSubjects.add(artefact.getName());
-            }
-            for (Furniture furniture: location.getFurniture()){
-                this.validSubjects.add(furniture.getName());
-            }
-            for (Character character : location.getCharacters()){
-                this.validSubjects.add(character.getName());
-            }
-            this.validSubjects.add(location.getName());
-        }
+        
     }
 
     // Returns an integer identifying where in the players list the current player exists.
@@ -105,6 +88,19 @@ public final class GameServer {
         ArrayList<Location> locations = readEntityFile("entities.dot");
         maps.add(locations);
         System.out.println("Adding new player: " + username);
+
+        for (Location location: locations){
+            for (Artefact artefact: location.getArtefacts()){
+                this.validSubjects.add(artefact.getName());
+            }
+            for (Furniture furniture: location.getFurniture()){
+                this.validSubjects.add(furniture.getName());
+            }
+            for (Character character : location.getCharacters()){
+                this.validSubjects.add(character.getName());
+            }
+            this.validSubjects.add(location.getName());
+        }
         return i;
     }
 

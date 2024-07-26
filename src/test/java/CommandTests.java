@@ -203,5 +203,5 @@ final class CommandTests {
         assertEquals(expectedOutput, filteredCommand, "Incorrect Filtering");
     }
 
-
+  
 }

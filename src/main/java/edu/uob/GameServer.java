@@ -37,6 +37,7 @@ import edu.uob.Character;
 
 public final class GameServer {
 
+
     static ArrayList<Player> players = new ArrayList<>();
     static ArrayList<ArrayList<Location>> maps = new ArrayList<>();
     static private ArrayList<Action> actions = new ArrayList<>();
@@ -45,9 +46,20 @@ public final class GameServer {
     
     
 
+
     public static void main(String[] args) throws IOException, ParseException {
         GameServer server = new GameServer();
         server.blockingListenOn(8888);
+    }
+
+    // Return map specific to player at index 'p' in players/maps lists.
+    public ArrayList<Location> getMap(int p) {
+        return maps.get(p);
+    }
+
+    // Return Player class for player p in players/maps lists.
+    public Player getPlayer(int p) {
+        return players.get(p);
     }
 
     public GameServer() {
@@ -56,7 +68,31 @@ public final class GameServer {
         } catch (ParseException e) {
             System.err.println("Error parsing actions file: " + e.getMessage());
         }
-        
+    }
+
+    // Helper function to return the index of the storeroom for the current player (p)
+    // Returns the index, or returns -1 on error
+    public int getStoreroomIndex(int p) {
+        for(int i = 0; i < maps.get(p).size(); i++) {
+            if(maps.get(p).get(i).getName().equals("storeroom")) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    // Helper function to return Location of storeroom for current player (p)
+    // Returns the Location object, or null on error.
+    public Location getStoreroomLocation(int p) {
+        int index = getStoreroomIndex(p);
+
+        if(index < 0) {
+            return null;
+        }
+
+        return maps.get(p).get(index);
+
     }
 
     // Returns an integer identifying where in the players list the current player exists.
@@ -292,12 +328,41 @@ public final class GameServer {
         return response;
     }
 
+    // Send the game introduction as a response to the client.
+    // Command expected is 'repeat introduction'
+    public String repeatIntroductionCommand(String command) {
+        if(!command.trim().matches("^\\s*\\w+\\s+\\w+\\s*$") ||
+                !(command.split(" ")[1].trim()).equals("introduction")) {
+            return "You can repeat the game introduction with the command 'repeat introduction'\n";
+        }
+
+        return "\n" +
+                "Welcome to the mysterious realm of Cajoedie,\n" +
+                "where you may explore and interact with the\n" +
+                "dense and prosperous world around you.\n" +
+                "\n" +
+                "You may find it useful to 'look' around and\n" +
+                "'get' used to your surroundings,\n" +
+                "but be careful not to 'drop' anything as you\n" +
+                "'goto' different areas of the realm.\n" +
+                "\n" +
+                "If you falter, you may wish to 'reset' and\n" +
+                "have another go with a fresh 'inv'entory\n" +
+                "\n" +
+                "                   ...I've said too much.\n" +
+                "\n" +
+                "     Now go\n" +
+                "\n" +
+                "And enjoy what Cajoedie has to offer.\n";
+    }
+
     // Handle an incoming command from a player
     public String handleCommand(String incomming) throws ParseException {
         int p;
         Player player;
         ArrayList<Location> map;
         Location currentLocation;
+        boolean commandIssued = false;
 
         String username = incomming.split(":")[0].trim();
         String command = incomming.split(":")[1].trim();
@@ -310,6 +375,7 @@ public final class GameServer {
         player = players.get(p);
         map = maps.get(p);
         currentLocation = map.get(player.getLocation());
+
 
         if ((triggers.size() > 1) || (triggers.size() < 1)){
             response = "Please give one valid command.";
@@ -333,6 +399,54 @@ public final class GameServer {
                 response += resetCommand(player, map, p);
             }
         }
+
+        // Boolean actionValid = false;
+        // // Check through all the actions to see if the command matches any of the triggers
+        // for (Action action : actions){
+        //     for (String trigger : action.getTriggers()){
+        //         if (filteredCommand.startsWith(trigger)){
+        //             actionValid = true;
+        //             // loop through the subjects of the action
+        //             for (String subject : action.getSubjects()){
+        //                 // check if the subject is in the command
+        //                 if (filteredCommand.contains(subject)){
+        //                     // check if the subject is in the players inventory
+        //                     if (player.getInventory().contains(new Artefact(subject, ""))){
+        //                         continue;
+        //                     }
+        //                     // or if its on the ground
+        //                     else if (currentLocation.hasArtefact(subject)){
+        //                         continue;
+        //                     }
+        //                     // if not the command is not valid
+        //                     else {
+        //                         response += "You do not have the required item to perform this action\n";
+        //                         actionValid = false;
+        //                         break;
+        //                     }
+        //                 }
+        //                 else{
+        //                     response += "The" + subject + " is required to perform this action\n";
+        //                     actionValid = false;
+        //                     break;
+                        
+        //                 }
+        //             }
+        //         }
+        //     }
+        //     if (actionValid == true) {
+        //         response += action.getNarration() + "\n";
+        //         break;
+        //     }
+        // }
+    
+        // if (actionValid == false){
+        //     response += "There is no action " + filteredCommand + "\n";
+        // }
+
+
+
+        
         return response;
     }
 
@@ -355,14 +469,92 @@ public final class GameServer {
         validCommand.add(triggers);
         validCommand.add(subjects);
 
+        
+
         return validCommand;
     }
 
      
 
+
+        
+
+
+    /**
+     * Consumption Function: Removes 'item' from 'container' and adds it to the storeroom.
+     *
+     * The item passed here can be either an 'Artefact', or a 'Furniture' type.
+     * If the item is an Artefact, the function expects that the container will be a player's inventory.
+     * If the item is a Furniture, the function expects that the container will be a location's list of furniture.
+     *
+     * @param p         Player index within the players list.
+     * @param item      Entity that will be removed from container & added to storeroom.
+     * @param container Containing List that will have 'item' removed from it.
+     */
+    public void consumption(int p, Entity item, List<?> container) {
+        Location storeroom = maps.get(p).get(5);
+        if(container.contains(item)) {
+            if(item instanceof Artefact) {
+                storeroom.getArtefacts().add((Artefact) item);
+            }
+            else if(item instanceof Furniture) {
+                storeroom.getFurniture().add((Furniture) item);
+            }
+            else {
+                // We should never reach this. TODO: Error state
+                System.out.println("ERROR: " + item.getName() + " is not a valid type");
+            }
+
+            container.remove(item);
+        }
+        else {
+            // We should never reach this. TODO: Error state
+            System.out.println("ERROR: " + item.getName() + " is not able to be consumed\n");
+        }
+    }
+
+    /**
+     * Production Function: Removes an 'item' from the storeroom and adds it to 'destination'
+     *
+     * The item passed here can be an artefact, furniture, or character.
+     * If the item is an artefact, we expect that the destination will be the player's inventory
+     * If the item is furniture, we expect that the destination will be a location.getFurniture().
+     * If the item is a character, we expect that the destination will be a location.getCharacters().
+     *
+     * (This function may have unintended errors if you pass an invalid destination)
+     *
+     * @param p             Player index within the players list.
+     * @param item          Entity that will be removed from storeroom & added to the destination.
+     * @param destination   ArrayList<Entity> that will have the item added to it.
+     *                      eg: player's inventory
+     *                          location's furniture list
+     *                          location's character list
+     */
+    public void production(int p, Entity item, Object destination) {
+        Location storeroom = maps.get(p).get(5);
+        List<Entity> listDestination = (List<Entity>) destination;
+        listDestination.add(item);
+
+        if(item instanceof Artefact) {
+            storeroom.getArtefacts().remove(item);
+        }
+        else if (item instanceof Furniture) {
+            storeroom.getFurniture().remove(item);
+        }
+        else if(item instanceof Character) {
+            storeroom.getCharacters().remove(item);
+        }
+        else {
+            // We should never reach this. TODO: Error state
+            System.out.println("ERROR: " + item.getName() + " is not a valid type\n");
+        }
+    }
+
+    
     
 
     public static ArrayList<Location> readEntityFile(String entityFileName) throws ParseException {
+   
         ArrayList<Location> locationsList = new ArrayList<>();
         Parser parser = new Parser();
         String file = "config" + File.separator + entityFileName;

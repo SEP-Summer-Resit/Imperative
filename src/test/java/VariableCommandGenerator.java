@@ -1,3 +1,5 @@
+package edu.uob;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -10,25 +12,15 @@ public class VariableCommandGenerator {
         String subject1 = subjectUsed;
         String subject2 = subjectActedOn;
         List<String> randomCommands;
-        // Possible command structures
-        if ("bridge".equals(trigger)) {
-            randomCommands = Arrays.asList(
-                String.format("build bridge with %s", subject1),
-                String.format("build bridge with %s", subject2),
-                String.format("build bridge with %s and %s", subject1, subject2),
-                String.format("use %s and %s to build a bridge", subject1, subject2)
-            );
-        }else{
-            randomCommands = Arrays.asList(
-                String.format("%s %s with %s", trigger, subject2, subject1),
-                String.format("%s that %s", trigger, subject2),
-                String.format("use the %s on the %s", subject1, subject2),
-                String.format("%s %s using the %s", trigger, subject2, subject1),
-                String.format("%s %s with the %s", trigger, subject2, subject1),
-                String.format("using the %s, %s the %s", subject1, trigger, subject2),
-                String.format("you know the %s ? Use it to %s the %s", trigger, subject1, subject2)
-            );
-        }
+        randomCommands = Arrays.asList(
+            String.format("%s the %s with the %s", trigger, subject2, subject1),
+            String.format("%s that %s", trigger, subject2),
+            String.format("use the %s on the %s", subject1, subject2),
+            String.format("%s %s using the %s", trigger, subject2, subject1),
+            String.format("%s the %s with the %s", trigger, subject2, subject1),
+            String.format("using the %s, %s the %s", subject1, trigger, subject2),
+            String.format("you know the %s ? Use it to %s the %s", trigger, subject1, subject2)
+        );
         return getRandomCommand(randomCommands);
     }
 

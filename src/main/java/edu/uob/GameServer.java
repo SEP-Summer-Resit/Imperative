@@ -401,7 +401,7 @@ public final class GameServer {
         }
 
         if(!actionSelected) {
-            System.out.println("'" + command + "' is not a valid action\n");
+            System.out.println("'That is not a valid action\n");
             return null;
         }
 
@@ -533,6 +533,97 @@ public final class GameServer {
         return response;
     }
 
+    // Implement the consumptions / productions in the given action.
+    public void doAction(int p, Action action) {
+        Player player = players.get(p);
+        ArrayList<Location> map = maps.get(p);
+        Location currentLocation = map.get(player.getLocation());
+        Location storeroom = getStoreroomLocation(p);
+        List<Artefact> inv = player.getInventory();
+
+        if(storeroom == null) {
+            System.out.println("ERROR: storeroom is null.");
+            return;
+        }
+
+        for (String consume : action.getConsumed()) {
+            boolean consumed = false;
+             for(Artefact artefact : inv) {
+                 if(artefact.getName().equals(consume)) {
+                     consumption(p, artefact, inv);
+                     consumed = true;
+                     break;
+                 }
+             }
+             if (consumed) { continue; }
+             for(Furniture furniture : currentLocation.getFurniture()) {
+                 if(furniture.getName().equals(consume)) {
+                     consumption(p, furniture, currentLocation.getFurniture());
+                     consumed = true;
+                     break;
+                 }
+             }
+             if (consumed) { continue; }
+             for(Character character : currentLocation.getCharacters()) {
+                 if(character.getName().equals(consume)) {
+                     consumption(p, character, currentLocation.getCharacters());
+                     consumed = true;
+                     break;
+                 }
+             }
+             if (consumed) { continue; }
+             if (consume.equals("health")) {
+                 player.reduceHealth(1);
+                 consumed = true;
+             }
+        }
+
+        for(String produce : action.getProduced()) {
+            boolean produced = false;
+            for(Artefact artefact : storeroom.getArtefacts()) {
+                if(artefact.getName().equals(produce)) {
+                    production(p, artefact, inv);
+                    produced = true;
+                    break;
+                }
+            }
+            if (produced) { continue; }
+            for(Furniture furniture : storeroom.getFurniture()) {
+                if(furniture.getName().equals(produce)) {
+                    production(p, furniture, currentLocation.getFurniture());
+                    produced = true;
+                    break;
+                }
+            }
+            if (produced) { continue; }
+            for(Character character : storeroom.getCharacters()) {
+                if(character.getName().equals(produce)) {
+                    production(p, character, currentLocation.getCharacters());
+                    produced = true;
+                    break;
+                }
+            }
+            if (produced) { continue; }
+            if(produce.equals("health")) {
+                player.refillHealth();
+                produced = true;
+            }
+            if (produced) { continue; }
+            for(Location loc : map) {
+                String dest = loc.getName();
+                if(dest.equals(produce)) {
+                    System.out.println("path to " + dest + " should be added");
+                    String currLocName = currentLocation.getName();
+                    Path newPath = new Path(dest, currLocName);
+                    currentLocation.getPathsOut().add(newPath);
+                    produced = true;
+                    break;
+                }
+            }
+        }
+
+    }
+
     // Handle an incoming command from a player
     public String handleCommand(String incomming) throws ParseException {
         int p;
@@ -597,7 +688,7 @@ public final class GameServer {
 
         // Check if any valid actions were matched
         if(selectedActions == null) {
-            return "'" + filteredCommand + "' is not a valid action\n";
+            return "That is not a valid action\n";
         }
 
         // If multiple valid action matches were found, do nothing
@@ -614,7 +705,15 @@ public final class GameServer {
         // Check whether valid action is allowed in current scenario
         response += checkActionIsAllowed(p, selectedAction);
 
-        // TODO: Call consumption & production for required elements.
+        if(!response.contains("cannot do that action")) {
+            doAction(p, selectedAction);
+        }
+
+        // Check player's health after every turn, die & reset if zero
+        if(player.getHealth() <= 0) {
+            response += "You have died. Game is being reset.\n";
+            response += resetCommand(player, map, p);
+        }
 
         return response;
     }

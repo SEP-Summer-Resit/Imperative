@@ -20,7 +20,7 @@ final class CommandTests {
   @BeforeEach
   void setup() {
       server = new GameServer();
-      server.validSubjects.addAll(Arrays.asList("potion", "forest", "key"));
+      server.validSubjects.addAll(Arrays.asList("potion", "forest", "key", "axe"));
   }
 
   @AfterEach
@@ -36,11 +36,22 @@ final class CommandTests {
             response.contains("There are no artefacts in this location")), "No artefacts returned by `look`");
     assertTrue((response.contains("There are paths to the following locations") ||
             response.contains("There are no paths from here")), "No paths returned by `look`");
+    //decorative command test
+    response = server.handleCommand("Daniel: please cam I look over there");
+    assertTrue(response.contains("You are in "), "No location returned by `look`");
+    assertTrue((response.contains("There are the following artefacts in this location") ||
+            response.contains("There are no artefacts in this location")), "No artefacts returned by `look`");
+    assertTrue((response.contains("There are paths to the following locations") ||
+    response.contains("There are no paths from here")), "No paths returned by `look`");
   }
 
   @Test
   void testInventoryCommand() throws ParseException {
     String response = server.handleCommand("Daniel: inv");
+    assertTrue((response.contains("You have the following items in your inventory") ||
+            response.contains("You have no items in your inventory")), "Inventory not listed");
+    //decorative command test
+    response = server.handleCommand("Daniel: can I see whats in my inv?");
     assertTrue((response.contains("You have the following items in your inventory") ||
             response.contains("You have no items in your inventory")), "Inventory not listed");
   }
@@ -53,6 +64,15 @@ final class CommandTests {
     assertTrue(response.contains("You must provide a valid item to pick up"));
     response = server.handleCommand("Daniel: get");
     assertTrue(response.contains("You must provide a valid item to pick up"));
+    response = server.handleCommand("Daniel: reset");
+    //test inverted command
+    response = server.handleCommand("Daniel: the potion, I would like to get it");
+    assertTrue(response.contains("You now have 'potion' in your inventory"));
+    response = server.handleCommand("Daniel: reset");
+    //test decorated command
+    response = server.handleCommand("Daniel: I'd like to get that lovely green potion");
+    assertTrue(response.contains("You now have 'potion' in your inventory"));
+
   }
 
   
@@ -64,30 +84,43 @@ final class CommandTests {
     response = server.handleCommand("Daniel: goto asdf");
     assertTrue(response.contains("You must provide a valid location you wish to move to"));
     response = server.handleCommand("Daniel: goto forest");
-  //   List<Set<String>> command = server.produceValidCommand(server.filterCommand("Daniel: goto forest"));
-  //   for (Set<String> set : command) {
-  //     for (String str : set) {
-  //         System.out.println(str);
-  //     }
-  // }
-    System.out.println("this is the response: " + response);
+    assertTrue(response.contains("You have moved to forest"));
+    response = server.handleCommand("Daniel: reset");
+    //decorated command
+    response = server.handleCommand("Daniel: I want to goto the forest");
     assertTrue(response.contains("You have moved to forest"));
   }
 
+  //tests that the reset works and that once you have picked up an item or moved you cant
+  //do the same again
   @Test
   void testResetCommand() throws ParseException {
     String response = server.handleCommand("Daniel: reset asdf");
     assertTrue(response.contains("Game reset"));
     response = server.handleCommand("Daniel: goto forest");
-    assertTrue(response.contains("You have moved to"));
+    assertTrue(response.contains("You have moved to forest"));
+    response = server.handleCommand("Daniel: goto forest");
+    assertTrue(response.contains("You must provide a valid location you wish to move to"));
     response = server.handleCommand("Daniel: get key");
     assertTrue(response.contains("You now have 'key' in your inventory"));
+    response = server.handleCommand("Daniel: get key");
+    assertTrue(response.contains("You must provide a valid item to pick up"));
     response = server.handleCommand("Daniel: reset");
     assertTrue(response.contains("Game reset"));
     response = server.handleCommand("Daniel: look");
     assertTrue(response.contains("cabin"));
     response = server.handleCommand("Daniel: inv");
     assertTrue(response.contains("You have no items in your inventory"));
+  }
+
+  @Test
+  void testAmbiguousCommandNotAccepted() throws ParseException {
+    String response = server.handleCommand("Daniel: can I goto the forest and get potion");
+    assertTrue(response.contains("Please give one valid command."));
+    response = server.handleCommand("Daniel:can I get the axe and the potion");
+    assertTrue(response.contains("You can only pick up one artefact at a time."));
+    response = server.handleCommand("Daniel: I want to look around and goto the forest");
+    assertTrue(response.contains("Please give one valid command."));
   }
 
   @Test

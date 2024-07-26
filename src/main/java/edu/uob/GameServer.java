@@ -95,7 +95,6 @@ public final class GameServer {
 
         for (i = 0; i < players.size(); i++) {
             if(Objects.equals(players.get(i).getName(), username)) {
-                // System.out.println("Found player: " + players.get(i).getName());
                 return i;
             }
         }
@@ -182,7 +181,6 @@ public final class GameServer {
         String response = "";
         Location currentLocation = map.get(player.getLocation());
         Set<String> validLocation = new HashSet<>();
-        System.out.println("current location: " + currentLocation.getName());
         // Search through the available paths for a match
         for (int i = 0; i < currentLocation.getPathsOut().size(); i++) {
         //check if subjects contains a valid destination
@@ -239,7 +237,7 @@ public final class GameServer {
             response += "You can only pick up one artefact at a time.";
         }
         
-        if(!artefactTaken) {
+        if(validArtefact.isEmpty()) {
             response += "You must provide a valid item to pick up.";
         }
         return response;
@@ -358,7 +356,7 @@ public final class GameServer {
         List<Set<String>> validCommand = new ArrayList<>();
         validCommand.add(triggers);
         validCommand.add(subjects);
-
+        
         return validCommand;
     }
 

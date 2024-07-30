@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+    <action>
+        <triggers>
+            <keyword>use</keyword>
+            <keyword>craft</keyword>
+            <keyword>build</keyword>
+            <keyword>make</keyword>
+        </triggers>
+        <subjects>
+            <entity>stick</entity>
+            <entity>rope</entity>
+            <entity>stone</entity>
+        </subjects>
+        <consumed>
+            <entity>stick</entity>
+            <entity>rope</entity>
+            <entity>stone</entity>
+        </consumed>
+        <produced>
+            <entity>makeshift axe</entity>
+        </produced>
+        <narration>You manage to craft a makeshift axe using the stick rope and stone</narration>
+    </action>
+
+    <action>
+        <triggers>
+            <keyword>use</keyword>
+            <keyword>craft</keyword>
+            <keyword>build</keyword>
+            <keyword>make</keyword>
+        </triggers>
+        <subjects>
+            <entity>log</entity>
+            <entity>rope</entity>
+        </subjects>
+        <consumed>
+            <entity>log</entity>
+            <entity>rope</entity>
+        </consumed>
+        <produced>
+            <entity>raft</entity>
+        </produced>
+        <narration>You craft a raft using the log and rope</narration>
+    </action>
+
+    <action>
+        <triggers>
+            <keyword>use</keyword>
+            <keyword>craft</keyword>
+            <keyword>build</keyword>
+            <keyword>make</keyword>
+        </triggers>
+        <subjects>
+            <entity>stick</entity>
+        </subjects>
+        <consumed>
+            <entity>stick</entity>
+        </consumed>
+        <produced>
+            <entity>oar</entity>
+        </produced>
+        <narration>You craft an oar for the raft using a stick</narration>
+    </action>
+
+    <action>
+        <triggers>
+            <keyword>row</keyword>
+            <keyword>cross</keyword>
+            <keyword>use</keyword>
+        </triggers>
+        <subjects>
+            <entity>raft</entity>
+            <entity>oar</entity>
+            <entity>river</entity>
+        </subjects>
+        <consumed>
+
+        </consumed>
+        <produced>
+            <entity>island</entity>
+        </produced>
+        <narration>You row the raft using the oar to an island across the river</narration>
+    </action>
+
+    <action>
+        <triggers>
+            <keyword>use</keyword>
+            <keyword>craft</keyword>
+            <keyword>build</keyword>
+            <keyword>make</keyword>
+        </triggers>
+        <subjects>
+            <entity>fiber</entity>
+        </subjects>
+        <consumed>
+            <entity>fiber</entity>
+        </consumed>
+        <produced>
+            <entity>rope</entity>
+        </produced>
+        <narration>You craft the fiber from the plant into a rope</narration>
+    </action>
+
+    <action>
+        <triggers>
+            <keyword>chop</keyword>
+            <keyword>cut</keyword>
+            <keyword>cutdown</keyword>
+        </triggers>
+        <subjects>
+            <entity>tree</entity>
+            <entity>axe</entity>
+        </subjects>
+        <consumed>
+            <entity>tree</entity>
+        </consumed>
+        <produced>
+            <entity>log</entity>
+        </produced>
+        <narration>You cut down the tree with the axe</narration>
+    </action>
+    
+
+</actions>

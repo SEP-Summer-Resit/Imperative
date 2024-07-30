@@ -1,16 +1,19 @@
-digraph layout
+digraph layout {
 
-graph [ranksep="1" nodesep="1"];
+    splines = ortho;
+
+    graph [ranksep="1" nodesep="1"];
     node [shape = "rect"];
 
     subgraph locations {
+
          subgraph cluster001 {
             node [shape = "none"];
             clearing [description = "A clearing in the woods, there are trees all around"];
             subgraph artefacts {
                 node [shape = "diamond"];
                 stick [description = "Sticks from a nearby tree"];
-                key [description = "A rusty old key];
+                key [description = "A rusty old key"];
             }
             subgraph furniture {
                 node [shape = "hexagon"];
@@ -33,15 +36,39 @@ graph [ranksep="1" nodesep="1"];
             }
         }
 
+        subgraph cluster003 {
+            node [shape = "none"];
+            island [description = "You make it across the river and reach an island"];
+            subgraph characters {
+                node [shape = "ellipse"];
+                dwarf [description = "An angry looking dwarf"];
+            }
+            subgraph furniture {
+                node [shape = "hexagon"];
+                house [description = "A dwarven house"]
+            }
+        }
 
-
+        subgraph cluster999 {
+            node [shape = "none"];
+            storeroom [description = "Storage for any entities not placed in the game"]
+            subgraph artefacts {
+                node [shape = "diamond"];
+                axe [description = "A makeshift axe"];
+            }
+            subgraph furniture {
+                node [shape = "hexagon"];
+                raft [description = "A wooden raft"];
+            }
+        }
     }
+
 
     subgraph paths {
         clearing -> riverbank;
-        riverbank -> river;
-        cellar -> cabin;
-        forest -> riverbank
-        riverbank -> forest
-        clearing -> riverbank
+        riverbank -> clearing
+        riverbank -> island;
+        island -> riverbank
     }
+
+}

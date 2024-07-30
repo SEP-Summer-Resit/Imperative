@@ -68,7 +68,6 @@
             <keyword>row</keyword>
             <keyword>cross</keyword>
             <keyword>use</keyword>
-            <keyword>make</keyword>
         </triggers>
         <subjects>
             <entity>raft</entity>
@@ -101,6 +100,25 @@
             <entity>rope</entity>
         </produced>
         <narration>You craft the fiber from the plant into a rope</narration>
+    </action>
+
+    <action>
+        <triggers>
+            <keyword>chop</keyword>
+            <keyword>cut</keyword>
+            <keyword>cutdown</keyword>
+        </triggers>
+        <subjects>
+            <entity>tree</entity>
+            <entity>axe</entity>
+        </subjects>
+        <consumed>
+            <entity>tree</entity>
+        </consumed>
+        <produced>
+            <entity>log</entity>
+        </produced>
+        <narration>You cut down the tree with the axe</narration>
     </action>
     
 

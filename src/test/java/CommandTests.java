@@ -73,6 +73,16 @@ final class CommandTests {
   }
 
   @Test
+  void testCommandGenerator() {
+    System.out.println(VariableCommandGenerator.generateRandomCommand(Arrays.asList("chop", "cut"), "axe", "tree"));
+    System.out.println(VariableCommandGenerator.generateRandomCommand(Arrays.asList("chop", "cut"), "axe", "tree"));
+    System.out.println(VariableCommandGenerator.generateRandomCommand(Arrays.asList("chop", "cut"), "axe", "tree"));
+    System.out.println(VariableCommandGenerator.generateRandomCommand(Arrays.asList("pay"), "elf"));
+    System.out.println(VariableCommandGenerator.generateRandomCommand(Arrays.asList("bridge"), "log", "river"));
+  }
+
+
+  @Test
   void testProduction() throws ParseException {
     ArrayList<Location> map;
     Player player;
@@ -203,5 +213,5 @@ final class CommandTests {
         assertEquals(expectedOutput, filteredCommand, "Incorrect Filtering");
     }
 
-
+  
 }

@@ -1,3 +1,4 @@
+edu\uob\VariableCommandGenerator.class
 edu\uob\CommandTests.class
-edu\uob\ReadActionFileTests.class
 edu\uob\readEntityFileTests.class
+edu\uob\ReadActionFileTests.class

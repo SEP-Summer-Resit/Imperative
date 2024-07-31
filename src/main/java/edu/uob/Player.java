@@ -7,11 +7,13 @@ public class Player {
     private String name;
     private List<Artefact> inventory;
     private int location;
+    private int health;
 
     public Player(String name, List<Artefact> inventory) {
         this.name = name;
         this.inventory = new ArrayList<Artefact>();
         this.location = 0;
+        this.health = 3;
     }
 
     public String getName() {
@@ -34,5 +36,16 @@ public class Player {
 
     public void removeArtefactFromInventory(Artefact artefact) {
         this.inventory.remove(artefact);
+    }
+
+    public int getHealth() { return health; }
+
+    public void reduceHealth(int amount) {
+        this.health = this.health - amount;
+        System.out.println("Ouch! Health is now " + this.health);
+    }
+
+    public void refillHealth() {
+        this.health = 3;
     }
 }

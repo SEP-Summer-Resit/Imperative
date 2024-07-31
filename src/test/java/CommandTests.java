@@ -30,6 +30,8 @@ final class CommandTests {
     server.handleCommand("Daniel: reset");
   }
 
+
+
   @Test
   void testConsumption() throws ParseException {
     ArrayList<Location> map;
@@ -70,15 +72,6 @@ final class CommandTests {
     // Check that a single piece of furniture has moved from location to storeroom
     assertEquals(storeroomSizeAfter, storeroomSizeBefore + 1);
     assertEquals(containerSizeAfter, containerSizeBefore - 1);
-  }
-
-  @Test
-  void testCommandGenerator() {
-    System.out.println(VariableCommandGenerator.generateRandomCommand(Arrays.asList("chop", "cut"), "axe", "tree"));
-    System.out.println(VariableCommandGenerator.generateRandomCommand(Arrays.asList("chop", "cut"), "axe", "tree"));
-    System.out.println(VariableCommandGenerator.generateRandomCommand(Arrays.asList("chop", "cut"), "axe", "tree"));
-    System.out.println(VariableCommandGenerator.generateRandomCommand(Arrays.asList("pay"), "elf"));
-    System.out.println(VariableCommandGenerator.generateRandomCommand(Arrays.asList("bridge"), "log", "river"));
   }
 
 
@@ -151,6 +144,9 @@ final class CommandTests {
     String response = server.handleCommand("Daniel: inv");
     assertTrue((response.contains("You have the following items in your inventory") ||
             response.contains("You have no items in your inventory")), "Inventory not listed");
+    response = server.handleCommand("Daniel: can I check in my inv?");
+    assertTrue((response.contains("You have the following items in your inventory") ||
+            response.contains("You have no items in your inventory")), "Inventory not listed");
   }
 
   @Test
@@ -161,6 +157,25 @@ final class CommandTests {
     assertTrue(response.contains("You must provide a valid item to pick up"));
     response = server.handleCommand("Daniel: get");
     assertTrue(response.contains("You must provide a valid item to pick up"));
+    server.handleCommand("Daniel: reset");
+    //decorative/inverted command test
+    response = server.handleCommand("Daniel: " + VariableCommandGenerator.generateRandomCommand(Arrays.asList("get"), "potion"));
+    assertTrue(response.contains("You now have 'potion' in your inventory"));
+    server.handleCommand("Daniel: reset");
+    //decorative/inverted command test
+    response = server.handleCommand("Daniel: " + VariableCommandGenerator.generateRandomCommand(Arrays.asList("get"), "potion"));
+    assertTrue(response.contains("You now have 'potion' in your inventory"));
+  }
+
+  @Test
+  void testDropCommand() throws ParseException {
+    server.handleCommand("Daniel: get potion");
+    String response = server.handleCommand("Daniel: drop potion");
+    assertTrue(response.contains("You have dropped 'potion' from your inventory"));
+    server.handleCommand("Daniel: get potion");
+    //decorative/inverted command test
+    response = server.handleCommand("Daniel: " + VariableCommandGenerator.generateRandomCommand(Arrays.asList("drop"), "potion"));
+    assertTrue(response.contains("You have dropped 'potion' from your inventory"));
   }
 
   
@@ -172,8 +187,10 @@ final class CommandTests {
     response = server.handleCommand("Daniel: goto asdf");
     assertTrue(response.contains("You must provide a valid location you wish to move to"));
     response = server.handleCommand("Daniel: goto forest");
- 
-    System.out.println("this is the response: " + response);
+    assertTrue(response.contains("You have moved to forest"));
+    server.handleCommand("Daniel: reset");
+    //decorative/inverted command test
+    response = server.handleCommand("Daniel: " + VariableCommandGenerator.generateRandomCommand(Arrays.asList("goto"), "forest"));
     assertTrue(response.contains("You have moved to forest"));
   }
 
@@ -192,6 +209,14 @@ final class CommandTests {
     response = server.handleCommand("Daniel: inv");
     assertTrue(response.contains("You have no items in your inventory"));
   }
+
+  @Test
+    void testAmbiguousCommand() throws ParseException{
+      String response = server.handleCommand("Daniel: can I goto the forest and get a potion?");
+      assertTrue(response.contains("Multiple actions match your request."));
+      response = server.handleCommand("Daniel: can I get the potion and the axe");
+      assertTrue(response.contains("You can only pick up one artefact at a time."));
+    }
 
   @Test
     void testCommandTokenisation() {

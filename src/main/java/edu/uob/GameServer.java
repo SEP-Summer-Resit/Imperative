@@ -278,9 +278,7 @@ public final class GameServer {
             artefactTaken = true;
         }else if (validArtefact.size() > 1){
             response += "You can only pick up one artefact at a time.";
-        }
-        
-        if(!artefactTaken) {
+        }else if(!artefactTaken) {
             response += "You must provide a valid item to pick up.";
         }
         return response;
@@ -309,9 +307,7 @@ public final class GameServer {
             artefactDropped = true;
         }else if (validArtefact.size() > 1){
             response += "Only drop one artefact at a time";
-        }
-        
-        if(!artefactDropped) {
+        }else if(!artefactDropped) {
             response += "Artefact is not in your inventory.\n";
         }
         return response;
@@ -373,7 +369,6 @@ public final class GameServer {
             boolean valid = false;
             for (String trigger : action.getTriggers()) {
                 if (command.get(0).contains(trigger)) {
-                    System.out.println("Trigger: " + trigger);
                     valid = true;
                     break;
                 }
@@ -386,7 +381,6 @@ public final class GameServer {
             valid = false;
             for (String subject : action.getSubjects()) {
                 if (command.get(1).contains(subject)) {
-                    System.out.println("Subject: " + subject);
                     valid = true;
                     break;
                 }
@@ -635,19 +629,24 @@ public final class GameServer {
         String username = incomming.split(":")[0].trim();
         String command = incomming.split(":")[1].trim();
         String response = "";
-        
+        p = findPlayer(username);
         List<Set<String>> filteredCommand = produceValidCommand(filterCommand(command));
         Set<String> triggers = filteredCommand.get(0);
         Set<String> subjects = filteredCommand.get(1);
-        p = findPlayer(username);
         player = players.get(p);
         map = maps.get(p);
         currentLocation = map.get(player.getLocation());
 
 
 
-        if ((triggers.size() > 1) || (triggers.size() < 1)){
-            response = "Please give one valid command.";
+        if (triggers.size() > 1){
+            response += "Multiple actions match your request.\n" +
+            "Try to be more specific.\n";
+            commandIssued = true;
+        }else if (triggers.size() < 1){
+            response += "No actions match your request.\n" +
+            "Please try again\n";
+            commandIssued = true;
         }else{
             if (triggers.contains("look")) {
                 response += lookCommand(player, map);
